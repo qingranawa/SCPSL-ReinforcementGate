@@ -22,6 +22,12 @@ ReinforcementGate 是一个 SCP: Secret Laboratory 服务端插件，用于在�
 
 服务器、LabAPI 或游戏程序集版本发生变化后，应重新构建并在测试服验证波事件签名与四类波封装类型。
 
+## License
+
+本仓库原创代码采用 [MIT License](LICENSE)。服主和其他开发者可以自由使用、修改和分发插件，但应保留版权与许可证声明。
+
+本仓库不包含或再分发 LabAPI、SCP: Secret Laboratory 游戏程序集或其他第三方二进制文件；这些依赖仍受其各自许可证和服务条款约束。
+
 ## Installation
 
 1. 确认服务器已安装兼容的 LabAPI 1.1.7。
