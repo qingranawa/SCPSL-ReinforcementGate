@@ -1,10 +1,18 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using CommandSystem;
+using LabApi.Events.Arguments.ServerEvents;
 using LabApi.Events.CustomHandlers;
 using ReinforcementGate.Api;
 using ReinforcementGate.Commands;
+using ReinforcementGate.Configuration;
+using ReinforcementGate.Domain;
+using ReinforcementGate.Interception;
+using ReinforcementGate.Notifications;
+using ReinforcementGate.State;
 using Xunit;
 
 namespace ReinforcementGate.Tests;
@@ -73,5 +81,106 @@ public sealed class PluginLifecycleContractTests
         }
 
         Assert.False(ReinforcementStatesApi.IsAvailable);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void Null_wave_wrapper_preserves_existing_decision_and_warns_only_once(
+        bool initialIsAllowed)
+    {
+        CountingController controller = new();
+        RecordingInterceptionLogger logger = new();
+        WaveInterceptionService interception = new(
+            controller,
+            new SilentNotifications(),
+            logger);
+        ReinforcementEventsHandler handler = new(controller, interception, logger);
+#pragma warning disable SYSLIB0050
+        WaveRespawningEventArgs args = (WaveRespawningEventArgs)
+            FormatterServices.GetUninitializedObject(typeof(WaveRespawningEventArgs));
+#pragma warning restore SYSLIB0050
+        args.IsAllowed = initialIsAllowed;
+
+        handler.OnServerWaveRespawning(args);
+        handler.OnServerWaveRespawning(args);
+
+        Assert.Equal(initialIsAllowed, args.IsAllowed);
+        Assert.Equal(0, controller.EvaluateCalls);
+        string warning = Assert.Single(logger.Warnings);
+        Assert.Contains("wave", warning, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private sealed class SilentNotifications : INotificationService
+    {
+        public void Notify(NotificationKind kind, NotificationContext context)
+        {
+        }
+
+        public void UpdateConfig(NotificationsConfig config)
+        {
+        }
+    }
+
+    private sealed class RecordingInterceptionLogger : IInterceptionLogger
+    {
+        public List<string> Warnings { get; } = new();
+
+        public void Warn(string message) => Warnings.Add(message);
+
+        public void Error(string message, Exception exception)
+        {
+        }
+    }
+
+    private sealed class CountingController : IReinforcementController
+    {
+        private readonly ReinforcementStateService _inner = new();
+
+        public int EvaluateCalls { get; private set; }
+
+        public event EventHandler<ReinforcementStateChangedEventArgs>? StateChanged
+        {
+            add => _inner.StateChanged += value;
+            remove => _inner.StateChanged -= value;
+        }
+
+        public event EventHandler? RoundStateReset
+        {
+            add => _inner.RoundStateReset += value;
+            remove => _inner.RoundStateReset -= value;
+        }
+
+        public ReinforcementStateSnapshot GetSnapshot() => _inner.GetSnapshot();
+
+        public ReinforcementTargetState GetState(ReinforcementTarget target) =>
+            _inner.GetState(target);
+
+        public bool TryGetState(
+            ReinforcementTarget target,
+            out ReinforcementTargetState? state) =>
+            _inner.TryGetState(target, out state);
+
+        public StateTransitionResult SetEnabled(
+            ReinforcementTarget target,
+            bool enabled,
+            string source) =>
+            _inner.SetEnabled(target, enabled, source);
+
+        public StateTransitionResult ArmSkip(ReinforcementTarget target, string source) =>
+            _inner.ArmSkip(target, source);
+
+        public StateTransitionResult ClearSkip(ReinforcementTarget target, string source) =>
+            _inner.ClearSkip(target, source);
+
+        public StateTransitionResult Reset(string source) => _inner.Reset(source);
+
+        public StateTransitionResult ResetForRound() => _inner.ResetForRound();
+
+        public WaveDecision EvaluateWave(ReinforcementTarget target)
+        {
+            EvaluateCalls++;
+            return _inner.EvaluateWave(target);
+        }
     }
 }

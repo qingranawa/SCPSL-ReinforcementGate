@@ -15,6 +15,7 @@ public sealed class ReinforcementEventsHandler : CustomEventsHandler
     private readonly WaveInterceptionService _interception;
     private readonly IInterceptionLogger _logger;
     private readonly HashSet<Type> _warnedUnknownWaveTypes = new();
+    private bool _warnedNullWave;
 
     /// <summary>Creates the LabAPI event adapter.</summary>
     public ReinforcementEventsHandler(
@@ -38,6 +39,17 @@ public sealed class ReinforcementEventsHandler : CustomEventsHandler
     {
         if (ev is null)
             throw new ArgumentNullException(nameof(ev));
+
+        if (ev.Wave is null)
+        {
+            if (!_warnedNullWave)
+            {
+                _warnedNullWave = true;
+                TryWarn("Unknown reinforcement wave could not be wrapped and was allowed.");
+            }
+
+            return;
+        }
 
         if (!WaveClassifier.TryClassify(ev.Wave, out ReinforcementTarget target))
         {
