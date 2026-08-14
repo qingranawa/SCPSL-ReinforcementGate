@@ -35,7 +35,7 @@ public sealed class ReinforcementCommand : ICommand
             return false;
         }
 
-        string source = Player.Get(sender)?.Nickname ?? sender.SenderId;
+        string source = Player.Get(sender)?.Nickname ?? sender.LogName;
         return ExecuteRequest(request, source, out response);
     }
 

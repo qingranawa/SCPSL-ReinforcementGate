@@ -1,6 +1,6 @@
 # ReinforcementGate
 
-ReinforcementGate 是一个 SCP: Secret Laboratory 服务端插件，用于在支援波真正刷新前控制九尾狐与混沌分裂者的主支援、迷你支援。管理员可以长期关闭某一类或全部支援，也可以只跳过下一波匹配支援。
+ReinforcementGate 是一个 SCP: Secret Laboratory 服务端插件，用于在支援波真正刷新前控制九尾狐与混沌分裂者的主支援、小支援。管理员可以长期关闭某一类或全部支援，也可以只跳过下一波匹配支援。
 
 插件只控制未来的支援刷新事件。运行时开关只保存在内存中，每回合开始恢复为全部允许，并清除所有待执行的 skip。
 
@@ -16,7 +16,7 @@ ReinforcementGate 是一个 SCP: Secret Laboratory 服务端插件，用于在�
 ## Compatibility
 
 - SCP: Secret Laboratory 专用服务器。
-- **LabAPI 1.1.7**；插件不依赖 EXILED 或 LabExtended。
+- **LabAPI 1.1.7**；插件不依赖 EXILED 或 LabExtended。插件使用 LabAPI。
 - 目标框架为 .NET Framework 4.8（`net48`），目标平台为 x64，源码使用 C# 12。
 - 支援类别按 LabAPI 波类型判定，不按服务器人数或本波实际人数猜测大小支援。
 
@@ -57,7 +57,7 @@ ReinforcementGate 是一个 SCP: Secret Laboratory 服务端插件，用于在�
 
 | 目标 | 含义 | LabAPI 波类型 |
 | --- | --- | --- |
-| `all` | 全部支援的全局控制 | 不对应单一波类型 |
+| `all` | 全部支援的全局控制 | 所有支援波 |
 | `ntf` | 九尾狐大支援 | `MtfWave` |
 | `ntf-mini` | 九尾狐小支援 | `MiniMtfWave` |
 | `ci` | 混沌大支援 | `ChaosWave` |
@@ -279,8 +279,8 @@ dotnet test tests/ReinforcementGate.Tests/ReinforcementGate.Tests.csproj --confi
 
 ## Known limits
 
-- 插件不会移除、处决、改角色、改阵营或以其他方式处理已经刷新的玩家（players）。
-- 插件不会修改支援计时器（timers）、影响力（influence）、支援令牌（tokens）、波次人数（wave population）或支援载具（vehicles）。
+- 插件不会以任何方式处理已经刷新的玩家。
+- 插件不会修改支援计时器（timers）、影响力（influence）、支援票数（tokens）、波次人数（wave population）或支援载具（vehicles）。
 - 插件不主动生成一波支援，只能允许或阻止 LabAPI 提供的未来波事件。
 - 运行时开关不持久化，回合开始后全部恢复默认。
 - 未知或未来新增的支援波封装类型会被放行并记录限频警告，不会被猜测归类。
