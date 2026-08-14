@@ -16,19 +16,11 @@ public sealed class NotificationNodeConfig
 
     /// <summary>Creates the default notification for an enable transition.</summary>
     public static NotificationNodeConfig CreateEnableAppliedDefault() =>
-        Create(
-            NotificationMode.Broadcast,
-            "<color=green>{target_name} 已恢复刷新</color>",
-            "REINFORCEMENT ENABLED",
-            "{target_name} 已恢复刷新");
+        Create(NotificationMode.None, string.Empty, string.Empty, string.Empty);
 
     /// <summary>Creates the default notification for a disable transition.</summary>
     public static NotificationNodeConfig CreateDisableAppliedDefault() =>
-        Create(
-            NotificationMode.Both,
-            "<color=red>{target_name} 已停止刷新</color>",
-            "REINFORCEMENT SUSPENDED",
-            "{target_name} 已停止刷新");
+        Create(NotificationMode.None, string.Empty, string.Empty, string.Empty);
 
     /// <summary>Creates the default notification for a persistently blocked wave.</summary>
     public static NotificationNodeConfig CreateDisabledWaveBlockedDefault() =>
@@ -36,19 +28,11 @@ public sealed class NotificationNodeConfig
 
     /// <summary>Creates the default notification for arming a one-shot skip.</summary>
     public static NotificationNodeConfig CreateSkipArmedDefault() =>
-        Create(
-            NotificationMode.Broadcast,
-            "下一次 {target_name} 支援将被跳过",
-            string.Empty,
-            string.Empty);
+        Create(NotificationMode.None, string.Empty, string.Empty, string.Empty);
 
     /// <summary>Creates the default notification for a triggered one-shot skip.</summary>
     public static NotificationNodeConfig CreateSkipTriggeredDefault() =>
-        Create(
-            NotificationMode.Both,
-            "{target_name} 支援已被跳过",
-            "REINFORCEMENT WAVE CANCELLED",
-            "{target_name} 支援已被跳过");
+        Create(NotificationMode.None, string.Empty, string.Empty, string.Empty);
 
     private static NotificationNodeConfig Create(
         NotificationMode mode,

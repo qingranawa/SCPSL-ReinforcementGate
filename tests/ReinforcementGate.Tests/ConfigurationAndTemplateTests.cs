@@ -27,35 +27,40 @@ public sealed class ConfigurationAndTemplateTests
     }
 
     [Fact]
-    public void Default_configuration_matches_the_approved_notification_templates()
+    public void Default_configuration_has_no_builtin_notification_templates()
     {
         ReinforcementGateConfig config = new();
 
         AssertNode(
             config.Notifications.EnableApplied,
-            NotificationMode.Broadcast,
-            "<color=green>{target_name} 已恢复刷新</color>",
-            "REINFORCEMENT ENABLED",
-            "{target_name} 已恢复刷新");
+            NotificationMode.None,
+            string.Empty,
+            string.Empty,
+            string.Empty);
         AssertNode(
             config.Notifications.DisableApplied,
-            NotificationMode.Both,
-            "<color=red>{target_name} 已停止刷新</color>",
-            "REINFORCEMENT SUSPENDED",
-            "{target_name} 已停止刷新");
-        Assert.Equal(NotificationMode.None, config.Notifications.DisabledWaveBlocked.Mode);
+            NotificationMode.None,
+            string.Empty,
+            string.Empty,
+            string.Empty);
+        AssertNode(
+            config.Notifications.DisabledWaveBlocked,
+            NotificationMode.None,
+            string.Empty,
+            string.Empty,
+            string.Empty);
         AssertNode(
             config.Notifications.SkipArmed,
-            NotificationMode.Broadcast,
-            "下一次 {target_name} 支援将被跳过",
+            NotificationMode.None,
+            string.Empty,
             string.Empty,
             string.Empty);
         AssertNode(
             config.Notifications.SkipTriggered,
-            NotificationMode.Both,
-            "{target_name} 支援已被跳过",
-            "REINFORCEMENT WAVE CANCELLED",
-            "{target_name} 支援已被跳过");
+            NotificationMode.None,
+            string.Empty,
+            string.Empty,
+            string.Empty);
     }
 
     [Fact]
@@ -139,8 +144,8 @@ public sealed class ConfigurationAndTemplateTests
             node,
             NotificationNodeConfig.CreateSkipTriggeredDefault());
 
-        Assert.Equal(NotificationMode.Both, normalized.Mode);
-        Assert.Equal("{target_name} 支援已被跳过", normalized.Broadcast.Message);
+        Assert.Equal(NotificationMode.None, normalized.Mode);
+        Assert.Equal(string.Empty, normalized.Broadcast.Message);
         Assert.Equal(0f, normalized.Cassie.GlitchScale);
     }
 
@@ -184,8 +189,8 @@ public sealed class ConfigurationAndTemplateTests
             node,
             NotificationNodeConfig.CreateEnableAppliedDefault());
 
-        Assert.Equal(NotificationMode.Broadcast, normalized.Mode);
-        Assert.Equal("<color=green>{target_name} 已恢复刷新</color>", normalized.Broadcast.Message);
+        Assert.Equal(NotificationMode.None, normalized.Mode);
+        Assert.Equal(string.Empty, normalized.Broadcast.Message);
     }
 
     [Theory]
@@ -216,10 +221,10 @@ public sealed class ConfigurationAndTemplateTests
             node,
             NotificationNodeConfig.CreateSkipTriggeredDefault());
 
-        Assert.Equal(NotificationMode.Both, normalized.Mode);
-        Assert.Equal("{target_name} 支援已被跳过", normalized.Broadcast.Message);
-        Assert.Equal("REINFORCEMENT WAVE CANCELLED", normalized.Cassie.Message);
-        Assert.Equal("{target_name} 支援已被跳过", normalized.Cassie.Subtitles);
+        Assert.Equal(NotificationMode.None, normalized.Mode);
+        Assert.Equal(string.Empty, normalized.Broadcast.Message);
+        Assert.Equal(string.Empty, normalized.Cassie.Message);
+        Assert.Equal(string.Empty, normalized.Cassie.Subtitles);
     }
 
     [Fact]
@@ -249,7 +254,7 @@ public sealed class ConfigurationAndTemplateTests
             NotificationNodeConfig.CreateDisableAppliedDefault(),
             _ => throw new InvalidOperationException("logger unavailable"));
 
-        Assert.Equal(NotificationMode.Both, normalized.Mode);
+        Assert.Equal(NotificationMode.None, normalized.Mode);
         Assert.Equal((ushort)8, normalized.Broadcast.Duration);
     }
 

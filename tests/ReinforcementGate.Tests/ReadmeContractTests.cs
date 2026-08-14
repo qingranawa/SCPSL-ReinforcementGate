@@ -110,18 +110,11 @@ public sealed class ReadmeContractTests
         ReinforcementGateConfig documented = deserializer.Deserialize<ReinforcementGateConfig>(yaml);
         NotificationsConfig actual = documented.Notifications;
 
-        AssertNode(actual.EnableApplied, NotificationMode.Broadcast,
-            "<color=green>{target_name} 已恢复刷新</color>",
-            "REINFORCEMENT ENABLED", "{target_name} 已恢复刷新");
-        AssertNode(actual.DisableApplied, NotificationMode.Both,
-            "<color=red>{target_name} 已停止刷新</color>",
-            "REINFORCEMENT SUSPENDED", "{target_name} 已停止刷新");
+        AssertNode(actual.EnableApplied, NotificationMode.None, "", "", "");
+        AssertNode(actual.DisableApplied, NotificationMode.None, "", "", "");
         AssertNode(actual.DisabledWaveBlocked, NotificationMode.None, "", "", "");
-        AssertNode(actual.SkipArmed, NotificationMode.Broadcast,
-            "下一次 {target_name} 支援将被跳过", "", "");
-        AssertNode(actual.SkipTriggered, NotificationMode.Both,
-            "{target_name} 支援已被跳过",
-            "REINFORCEMENT WAVE CANCELLED", "{target_name} 支援已被跳过");
+        AssertNode(actual.SkipArmed, NotificationMode.None, "", "", "");
+        AssertNode(actual.SkipTriggered, NotificationMode.None, "", "", "");
 
         string[] fields =
         {

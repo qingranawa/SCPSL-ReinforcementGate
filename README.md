@@ -1,6 +1,6 @@
 # ReinforcementGate
 
-ReinforcementGate 是一个 SCP: Secret Laboratory 服务端插件，用于在支援波真正刷新前控制九尾狐与混沌分裂者的主支援、小支援。管理员可以长期关闭某一类或全部支援，也可以只跳过下一波匹配支援。
+ReinforcementGate 是一个 SCP: Secret Laboratory 服务端插件，用于在支援波真正刷新前控制九尾狐与混沌分裂者的大支援、小支援。管理员可以全局关闭某一类或全部支援，也可以只跳过下一波支援。
 
 插件只控制未来的支援刷新事件。运行时开关只保存在内存中，每回合开始恢复为全部允许，并清除所有待执行的 skip。
 
@@ -88,31 +88,31 @@ ReinforcementGate 是一个 SCP: Secret Laboratory 服务端插件，用于在�
 
 ## Configuration
 
-完整默认配置如下。配置只包含通知设置，不保存支援控制状态。
+完整默认配置如下。默认不发送 BC 或 CASSIE；配置只包含通知设置，不保存支援控制状态。服主可按需填写自己的模板并将对应节点的 `mode` 改为 `Broadcast`、`Cassie` 或 `Both`。
 
 ```yaml
 notifications:
   enable_applied:
-    mode: Broadcast
+    mode: None
     broadcast:
-      message: "<color=green>{target_name} 已恢复刷新</color>"
+      message: ""
       duration: 8
       clear_previous: false
     cassie:
-      message: "REINFORCEMENT ENABLED"
-      subtitles: "{target_name} 已恢复刷新"
+      message: ""
+      subtitles: ""
       play_background: true
       priority: 0
       glitch_scale: 0
   disable_applied:
-    mode: Both
+    mode: None
     broadcast:
-      message: "<color=red>{target_name} 已停止刷新</color>"
+      message: ""
       duration: 8
       clear_previous: false
     cassie:
-      message: "REINFORCEMENT SUSPENDED"
-      subtitles: "{target_name} 已停止刷新"
+      message: ""
+      subtitles: ""
       play_background: true
       priority: 0
       glitch_scale: 0
@@ -129,9 +129,9 @@ notifications:
       priority: 0
       glitch_scale: 0
   skip_armed:
-    mode: Broadcast
+    mode: None
     broadcast:
-      message: "下一次 {target_name} 支援将被跳过"
+      message: ""
       duration: 8
       clear_previous: false
     cassie:
@@ -141,14 +141,14 @@ notifications:
       priority: 0
       glitch_scale: 0
   skip_triggered:
-    mode: Both
+    mode: None
     broadcast:
-      message: "{target_name} 支援已被跳过"
+      message: ""
       duration: 8
       clear_previous: false
     cassie:
-      message: "REINFORCEMENT WAVE CANCELLED"
-      subtitles: "{target_name} 支援已被跳过"
+      message: ""
+      subtitles: ""
       play_background: true
       priority: 0
       glitch_scale: 0
