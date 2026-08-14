@@ -25,7 +25,7 @@ dotnet test tests\ReinforcementGate.Tests\ReinforcementGate.Tests.csproj -c Rele
 - 逻辑变更先补失败测试，再实现修复。
 - 保持 `RespawnEvents` 权限语义、波类型映射和状态优先级不变，除非 PR 明确说明。
 - 通知默认保持关闭；自定义 BC/CASSIE 文案应通过配置完成。
-- 不回溯已经发生的增援，不处理已经生成的玩家，也不主动创建增援波次。
+- 不回溯已经发生的支援，不处理已经生成的玩家，也不主动创建支援波次。
 - 保持 README、配置示例和公共 API 文档与实现同步。
 
 ## Pull Request 清单

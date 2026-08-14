@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  repository-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore ReinforcementGate.sln --ignore-failed-sources
+
+      - name: Validate whitespace
+        run: dotnet format whitespace ReinforcementGate.sln --no-restore --verify-no-changes --verbosity minimal
+
+      - name: Check repository diff
+        run: git diff --check
+
+      - name: Reject game binaries
+        shell: pwsh
+        run: |
+          $forbidden = git ls-files '*.dll' '*.exe' '*.pdb'
+          if ($forbidden) {
+            Write-Error "Game or build binaries must not be committed: $($forbidden -join ', ')"
+            exit 1
+          }
+
+      - name: Report server-reference limitation
+        run: |
+          echo "CI does not download or redistribute SCP:SL game assemblies."
+          echo "Release build, unit tests, and server compatibility validation require a locally supplied SL_REFERENCES directory."

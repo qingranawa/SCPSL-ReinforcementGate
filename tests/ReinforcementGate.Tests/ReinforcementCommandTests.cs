@@ -107,20 +107,20 @@ public sealed class ReinforcementCommandTests : IDisposable
         Assert.Contains("skip=true", status, StringComparison.Ordinal);
         Assert.Contains("disabled-source=GlobalAdmin", status, StringComparison.Ordinal);
         Assert.Contains("skip-source=GlobalSkipAdmin", status, StringComparison.Ordinal);
-        Assert.Contains("ntf: local=disabled, effective=disabled, skip=true", status, StringComparison.Ordinal);
+        Assert.Contains("ntf (九尾狐大支援): local=disabled, effective=disabled, skip=true", status, StringComparison.Ordinal);
         Assert.Contains("enabled-source=NtfAdmin", status, StringComparison.Ordinal);
         Assert.Contains("skip-source=NtfSkipAdmin", status, StringComparison.Ordinal);
 
         Assert.Contains(
-            "ntf-mini: local=enabled, effective=disabled, skip=false, enabled-source=initial, skip-source=initial",
+            "ntf-mini (九尾狐小支援): local=enabled, effective=disabled, skip=false, enabled-source=initial, skip-source=initial",
             status,
             StringComparison.Ordinal);
         Assert.Contains(
-            "ci: local=enabled, effective=disabled, skip=false, enabled-source=initial, skip-source=initial",
+            "ci (混沌大支援): local=enabled, effective=disabled, skip=false, enabled-source=initial, skip-source=initial",
             status,
             StringComparison.Ordinal);
         Assert.Contains(
-            "ci-mini: local=enabled, effective=disabled, skip=false, enabled-source=initial, skip-source=initial",
+            "ci-mini (混沌小支援): local=enabled, effective=disabled, skip=false, enabled-source=initial, skip-source=initial",
             status,
             StringComparison.Ordinal);
     }
@@ -158,7 +158,7 @@ public sealed class ReinforcementCommandTests : IDisposable
             new ReinforcementCommandRequest(ReinforcementCommandAction.Status, ReinforcementTarget.All),
             "Viewer",
             out string status));
-        Assert.Contains("ci-mini: local=disabled", status, StringComparison.Ordinal);
+        Assert.Contains("ci-mini (混沌小支援): local=disabled", status, StringComparison.Ordinal);
 
         Assert.True(command.ExecuteRequest(
             new ReinforcementCommandRequest(ReinforcementCommandAction.Reset, ReinforcementTarget.All),

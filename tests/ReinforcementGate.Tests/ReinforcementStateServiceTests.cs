@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using ReinforcementGate.Domain;
 using ReinforcementGate.State;
 using Xunit;
@@ -139,6 +140,69 @@ public sealed class ReinforcementStateServiceTests
         Assert.NotNull(decision.SkipConsumption);
         Assert.False(state.GetState(ReinforcementTarget.NtfMini).IsSkipArmed);
         Assert.Equal(1, healthyListenerCalls);
+    }
+
+    [Fact]
+    public void State_changed_listener_can_read_committed_state_without_state_lock()
+    {
+        ReinforcementStateService state = new();
+        bool readCompleted = false;
+        bool observedDisabled = false;
+        state.StateChanged += (_, _) =>
+        {
+            Task<ReinforcementStateSnapshot> read = Task.Run(state.GetSnapshot);
+            readCompleted = read.Wait(TimeSpan.FromMilliseconds(500));
+            if (readCompleted)
+                observedDisabled = read.Result.Targets[ReinforcementTarget.Ntf].IsLocallyEnabled is false;
+        };
+
+        state.SetEnabled(ReinforcementTarget.Ntf, false, "Admin");
+
+        Assert.True(readCompleted);
+        Assert.True(observedDisabled);
+    }
+
+    [Fact]
+    public void Skip_consumption_listener_can_read_committed_state_without_state_lock()
+    {
+        ReinforcementStateService state = new();
+        state.ArmSkip(ReinforcementTarget.Ntf, "SkipAdmin");
+        bool readCompleted = false;
+        bool observedConsumed = false;
+        state.StateChanged += (_, _) =>
+        {
+            Task<ReinforcementStateSnapshot> read = Task.Run(state.GetSnapshot);
+            readCompleted = read.Wait(TimeSpan.FromMilliseconds(500));
+            if (readCompleted)
+                observedConsumed = !read.Result.Targets[ReinforcementTarget.Ntf].IsSkipArmed;
+        };
+
+        WaveDecision decision = state.EvaluateWave(ReinforcementTarget.Ntf);
+
+        Assert.Equal(ReinforcementBlockReason.TargetSkip, decision.Reason);
+        Assert.True(readCompleted);
+        Assert.True(observedConsumed);
+    }
+
+    [Fact]
+    public void Round_state_reset_listener_can_read_committed_state()
+    {
+        ReinforcementStateService state = new();
+        state.SetEnabled(ReinforcementTarget.Ci, false, "Admin");
+        bool readCompleted = false;
+        bool observedEnabled = false;
+        state.RoundStateReset += (_, _) =>
+        {
+            Task<ReinforcementStateSnapshot> read = Task.Run(state.GetSnapshot);
+            readCompleted = read.Wait(TimeSpan.FromMilliseconds(500));
+            if (readCompleted)
+                observedEnabled = read.Result.Targets[ReinforcementTarget.Ci].IsEffectivelyEnabled;
+        };
+
+        state.ResetForRound();
+
+        Assert.True(readCompleted);
+        Assert.True(observedEnabled);
     }
 
     [Theory]

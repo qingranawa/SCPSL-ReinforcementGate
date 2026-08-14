@@ -5,4 +5,4 @@ contact_links:
     about: 提交 Issue 前先查看命令、权限、配置和兼容性说明。
   - name: 安全漏洞报告
     url: https://github.com/qingranawa/SCPSL-ReinforcementGate/security
-    about: 不要在公开 Issue 中披露可利用的安全问题。
+    about: 请从 Security 页面进入私有漏洞报告入口，未开启时使用维护者 GitHub 私信；不要在公开 Issue 中披露可利用问题。

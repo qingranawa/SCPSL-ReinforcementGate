@@ -35,7 +35,7 @@ public static class ReinforcementStatusFormatter
         {
             ReinforcementTargetState state = snapshot.Targets[target];
             response.Append('\n')
-                .Append(ReinforcementTargetNames.ToCommandName(target))
+                .Append(FormatTargetName(target))
                 .Append(": local=")
                 .Append(FormatEnabled(state.IsLocallyEnabled))
                 .Append(", effective=")
@@ -61,7 +61,7 @@ public static class ReinforcementStatusFormatter
 
         string prefix = transition.Changed ? "state changed" : "state unchanged";
         string actionName = ToCommandName(action);
-        string targetName = ReinforcementTargetNames.ToCommandName(transition.Target);
+        string targetName = FormatTargetName(transition.Target);
         return prefix +
             "; action=" + actionName +
             ", target=" + targetName +
@@ -127,4 +127,8 @@ public static class ReinforcementStatusFormatter
     private static string FormatEnabled(bool enabled) => enabled ? "enabled" : "disabled";
 
     private static string FormatBoolean(bool value) => value ? "true" : "false";
+
+    private static string FormatTargetName(ReinforcementTarget target) =>
+        ReinforcementTargetNames.ToCommandName(target) +
+        " (" + ReinforcementTargetNames.ToDisplayName(target) + ")";
 }

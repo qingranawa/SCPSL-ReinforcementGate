@@ -165,32 +165,36 @@ public sealed class ReinforcementStateService : IReinforcementController
     {
         EnsureConcreteTarget(target);
 
+        WaveDecision decision;
+        StateTransitionResult? consumed = null;
         lock (_sync)
         {
             MutableTargetState local = _targets[target];
 
             if (_globalDisabled)
-                return WaveDecision.Blocked(target, ReinforcementBlockReason.GlobalDisabled, _globalDisabledSource);
-
-            if (!local.IsEnabled)
-                return WaveDecision.Blocked(target, ReinforcementBlockReason.TargetDisabled, local.EnabledSource);
-
-            if (local.IsSkipArmed)
+                decision = WaveDecision.Blocked(target, ReinforcementBlockReason.GlobalDisabled, _globalDisabledSource);
+            else if (!local.IsEnabled)
+                decision = WaveDecision.Blocked(target, ReinforcementBlockReason.TargetDisabled, local.EnabledSource);
+            else if (local.IsSkipArmed)
             {
                 string source = local.SkipSource;
-                StateTransitionResult consumed = ConsumeTargetSkip(target, source);
-                return WaveDecision.Blocked(target, ReinforcementBlockReason.TargetSkip, source, consumed);
+                consumed = ConsumeTargetSkipLocked(target, source);
+                decision = WaveDecision.Blocked(target, ReinforcementBlockReason.TargetSkip, source, consumed);
             }
-
-            if (_globalSkipArmed)
+            else if (_globalSkipArmed)
             {
                 string source = _globalSkipSource;
-                StateTransitionResult consumed = ConsumeGlobalSkip(source);
-                return WaveDecision.Blocked(target, ReinforcementBlockReason.GlobalSkip, source, consumed);
+                consumed = ConsumeGlobalSkipLocked(source);
+                decision = WaveDecision.Blocked(target, ReinforcementBlockReason.GlobalSkip, source, consumed);
             }
-
-            return WaveDecision.Allowed(target);
+            else
+                decision = WaveDecision.Allowed(target);
         }
+
+        if (consumed is not null)
+            PublishStateChanged(consumed);
+
+        return decision;
     }
 
     private StateTransitionResult ResetCore(
@@ -220,7 +224,7 @@ public sealed class ReinforcementStateService : IReinforcementController
         return result;
     }
 
-    private StateTransitionResult ConsumeTargetSkip(ReinforcementTarget target, string source)
+    private StateTransitionResult ConsumeTargetSkipLocked(ReinforcementTarget target, string source)
     {
         MutableTargetState local = _targets[target];
         return TransitionLocked(ReinforcementStateAction.ConsumeSkip, target, source, () =>
@@ -230,7 +234,7 @@ public sealed class ReinforcementStateService : IReinforcementController
         });
     }
 
-    private StateTransitionResult ConsumeGlobalSkip(string source) =>
+    private StateTransitionResult ConsumeGlobalSkipLocked(string source) =>
         TransitionLocked(ReinforcementStateAction.ConsumeSkip, ReinforcementTarget.All, source, () =>
         {
             _globalSkipArmed = false;
@@ -243,8 +247,12 @@ public sealed class ReinforcementStateService : IReinforcementController
         string source,
         Action mutation)
     {
+        StateTransitionResult result;
         lock (_sync)
-            return TransitionLocked(action, target, source, mutation);
+            result = TransitionLocked(action, target, source, mutation);
+
+        PublishStateChanged(result);
+        return result;
     }
 
     private StateTransitionResult TransitionLocked(
@@ -264,14 +272,14 @@ public sealed class ReinforcementStateService : IReinforcementController
             target,
             source);
 
-        if (result.Changed)
-            PublishStateChanged(result);
-
         return result;
     }
 
     private void PublishStateChanged(StateTransitionResult result)
     {
+        if (!result.Changed)
+            return;
+
         EventHandler<ReinforcementStateChangedEventArgs>? handlers = StateChanged;
         if (handlers is null)
             return;

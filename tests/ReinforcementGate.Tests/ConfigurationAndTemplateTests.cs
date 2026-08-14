@@ -68,7 +68,7 @@ public sealed class ConfigurationAndTemplateTests
     {
         NotificationContext context = new(
             ReinforcementTarget.NtfMini,
-            "九尾狐迷你增援",
+            "九尾狐小支援",
             "Admin",
             "skip",
             "skip");
@@ -76,7 +76,7 @@ public sealed class ConfigurationAndTemplateTests
         TemplateRenderResult rendered = TemplateRenderer.Render(
             "{target}|{target_name}|{admin}|{action}|{reason}|{unknown}", context);
 
-        Assert.Equal("ntf-mini|九尾狐迷你增援|Admin|skip|skip|{unknown}", rendered.Text);
+        Assert.Equal("ntf-mini|九尾狐小支援|Admin|skip|skip|{unknown}", rendered.Text);
         Assert.Equal(new[] { "{unknown}" }, rendered.UnknownTokens);
     }
 
@@ -85,7 +85,7 @@ public sealed class ConfigurationAndTemplateTests
     {
         NotificationContext context = new(
             ReinforcementTarget.Ci,
-            "混沌分裂者主增援",
+            "混沌大支援",
             "Admin",
             "disable",
             "target-disabled");
@@ -104,7 +104,7 @@ public sealed class ConfigurationAndTemplateTests
     {
         NotificationContext context = new(
             ReinforcementTarget.All,
-            "全部增援",
+            "全部支援",
             "Admin",
             "enable",
             string.Empty);
@@ -308,11 +308,11 @@ public sealed class ConfigurationAndTemplateTests
     }
 
     [Theory]
-    [InlineData(ReinforcementTarget.All, "all", "全部增援")]
-    [InlineData(ReinforcementTarget.Ntf, "ntf", "九尾狐主增援")]
-    [InlineData(ReinforcementTarget.NtfMini, "ntf-mini", "九尾狐迷你增援")]
-    [InlineData(ReinforcementTarget.Ci, "ci", "混沌分裂者主增援")]
-    [InlineData(ReinforcementTarget.CiMini, "ci-mini", "混沌分裂者迷你增援")]
+    [InlineData(ReinforcementTarget.All, "all", "全部支援")]
+    [InlineData(ReinforcementTarget.Ntf, "ntf", "九尾狐大支援")]
+    [InlineData(ReinforcementTarget.NtfMini, "ntf-mini", "九尾狐小支援")]
+    [InlineData(ReinforcementTarget.Ci, "ci", "混沌大支援")]
+    [InlineData(ReinforcementTarget.CiMini, "ci-mini", "混沌小支援")]
     public void Target_names_are_centralized(
         ReinforcementTarget target,
         string commandName,

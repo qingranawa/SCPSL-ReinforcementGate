@@ -25,7 +25,7 @@ public sealed class PluginLifecycleContractTests
         ReinforcementGatePlugin plugin = new();
 
         Assert.Equal("ReinforcementGate", plugin.Name);
-        Assert.Equal(new Version(1, 0, 0), plugin.Version);
+        Assert.Equal(new Version(1, 0, 1), plugin.Version);
         Assert.Equal(new Version(1, 1, 7), plugin.RequiredApiVersion);
         Assert.Equal("ReinforcementGate Contributors", plugin.Author);
         Assert.False(plugin.IsTransparent);

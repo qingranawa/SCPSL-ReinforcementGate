@@ -133,6 +133,8 @@ dotnet test tests/ReinforcementGate.Tests/ReinforcementGate.Tests.csproj --confi
 
 Wynik to `src/ReinforcementGate/bin/Release/net48/ReinforcementGate.dll`. Samo przejście testów z użyciem stubów nie potwierdza zgodności z serwerem; sprawdź ładowanie, reload, cztery fale, Broadcast/CASSIE i reset rundy na serwerze testowym.
 
+Publiczne CI nie pobiera ani nie redystrybuuje bibliotek gry SCP:SL. Wykonuje przywracanie pakietów, kontrolę białych znaków, binariów repozytorium i różnic; kompilacja z `SL_REFERENCES`, testy jednostkowe oraz sprawdzenie zgodności z serwerem muszą być wykonane lokalnie lub w kontrolowanym środowisku testowym.
+
 ## Znane ograniczenia
 
 - Wtyczka decyduje tylko o przyszłych zdarzeniach fal LabAPI.
@@ -148,6 +150,7 @@ Wynik to `src/ReinforcementGate/bin/Release/net48/ReinforcementGate.dll`. Samo p
 - [Kodeks postępowania](CODE_OF_CONDUCT.md)
 - [Pomoc](SUPPORT.md)
 - [Szablony zgłoszeń](.github/ISSUE_TEMPLATE/)
+- [Polityka bezpieczeństwa](SECURITY.md)
 - [Szablon Pull Request](.github/PULL_REQUEST_TEMPLATE.md)
 
 ## Licencja

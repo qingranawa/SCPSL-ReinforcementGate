@@ -133,6 +133,8 @@ dotnet test tests/ReinforcementGate.Tests/ReinforcementGate.Tests.csproj --confi
 
 The output is `src/ReinforcementGate/bin/Release/net48/ReinforcementGate.dll`. A stub-only build does not prove server compatibility; validate loading, reload, all four waves, Broadcast/CASSIE and round reset on a test server.
 
+The public CI does not download or redistribute SCP:SL game assemblies. It runs restore, whitespace, repository-binary and diff checks; the `SL_REFERENCES` build, unit tests and server-compatibility validation must run locally or in a controlled test environment.
+
 ## Known limitations
 
 - The plugin only decides whether future LabAPI reinforcement events are allowed.
@@ -148,6 +150,7 @@ The output is `src/ReinforcementGate/bin/Release/net48/ReinforcementGate.dll`. A
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 - [Support](SUPPORT.md)
 - [Issue templates](.github/ISSUE_TEMPLATE/)
+- [Security policy](SECURITY.md)
 - [Pull Request template](.github/PULL_REQUEST_TEMPLATE.md)
 
 ## License

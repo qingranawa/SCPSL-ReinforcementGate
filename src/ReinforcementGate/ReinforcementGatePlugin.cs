@@ -47,7 +47,7 @@ public sealed class ReinforcementGatePlugin : Plugin<ReinforcementGateConfig>
     public override string Author => "ReinforcementGate Contributors";
 
     /// <inheritdoc />
-    public override Version Version => new(1, 0, 0);
+    public override Version Version => new(1, 0, 1);
 
     /// <inheritdoc />
     public override Version RequiredApiVersion => new(1, 1, 7);

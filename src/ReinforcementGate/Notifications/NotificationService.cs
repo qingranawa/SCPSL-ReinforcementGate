@@ -150,17 +150,17 @@ public sealed class NotificationService : INotificationService
     private static (NotificationNodeConfig Node, string Path) SelectNode(
         NotificationsConfig config,
         NotificationKind kind) => kind switch
-    {
-        NotificationKind.EnableApplied =>
-            (config.EnableApplied, "notifications.enable_applied"),
-        NotificationKind.DisableApplied =>
-            (config.DisableApplied, "notifications.disable_applied"),
-        NotificationKind.DisabledWaveBlocked =>
-            (config.DisabledWaveBlocked, "notifications.disabled_wave_blocked"),
-        NotificationKind.SkipArmed =>
-            (config.SkipArmed, "notifications.skip_armed"),
-        NotificationKind.SkipTriggered =>
-            (config.SkipTriggered, "notifications.skip_triggered"),
-        _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Unknown notification kind."),
-    };
+        {
+            NotificationKind.EnableApplied =>
+                (config.EnableApplied, "notifications.enable_applied"),
+            NotificationKind.DisableApplied =>
+                (config.DisableApplied, "notifications.disable_applied"),
+            NotificationKind.DisabledWaveBlocked =>
+                (config.DisabledWaveBlocked, "notifications.disabled_wave_blocked"),
+            NotificationKind.SkipArmed =>
+                (config.SkipArmed, "notifications.skip_armed"),
+            NotificationKind.SkipTriggered =>
+                (config.SkipTriggered, "notifications.skip_triggered"),
+            _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Unknown notification kind."),
+        };
 }

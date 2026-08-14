@@ -101,7 +101,7 @@ Create `src/ReinforcementGate/ReinforcementGate.csproj` with:
     <PlatformTarget>x64</PlatformTarget>
     <AssemblyName>ReinforcementGate</AssemblyName>
     <RootNamespace>ReinforcementGate</RootNamespace>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
   <ItemGroup>
@@ -1106,7 +1106,7 @@ public sealed class ReinforcementEventsHandler : CustomEventsHandler
 
 - [ ] **Step 4: Implement plugin composition and strict teardown order**
 
-`ReinforcementGatePlugin` derives from `Plugin<ReinforcementGateConfig>`, declares version `1.0.0`, required API `1.1.7`, author `ReinforcementGate Contributors`, description from the design, and `IsTransparent => false`.
+`ReinforcementGatePlugin` derives from `Plugin<ReinforcementGateConfig>`, declares version `1.0.1`, required API `1.1.7`, author `ReinforcementGate Contributors`, description from the design, and `IsTransparent => false`.
 
 Override `LoadConfigs()` to call `base.LoadConfigs()`, normalize the newly loaded configuration, and call `_notificationService?.UpdateConfig(Config.Notifications)`. This makes LabAPI config reloads update templates while the plugin remains enabled.
 

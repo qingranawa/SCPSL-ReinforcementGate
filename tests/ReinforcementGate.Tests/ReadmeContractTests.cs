@@ -39,11 +39,11 @@ public sealed class ReadmeContractTests
 
         string[] targetRows =
         {
-            "| `all` | 全部增援波次的全局控制",
-            "| `ntf` | 九尾狐主增援 | `MtfWave` |",
-            "| `ntf-mini` | 九尾狐迷你增援 | `MiniMtfWave` |",
-            "| `ci` | 混沌分裂者主增援 | `ChaosWave` |",
-            "| `ci-mini` | 混沌分裂者迷你增援 | `MiniChaosWave` |",
+            "| `all` | 全部支援波次的全局控制",
+            "| `ntf` | 九尾狐大支援（MTF Primary Wave / `MtfWave`） | `MtfWave` |",
+            "| `ntf-mini` | 九尾狐小支援（MTF Mini-Wave / `MiniMtfWave`） | `MiniMtfWave` |",
+            "| `ci` | 混沌大支援（CI Primary Wave / `ChaosWave`） | `ChaosWave` |",
+            "| `ci-mini` | 混沌小支援（CI Mini-Wave / `MiniChaosWave`） | `MiniChaosWave` |",
         };
         Assert.All(targetRows, row => Assert.Contains(row, readme, StringComparison.Ordinal));
 
@@ -58,11 +58,11 @@ public sealed class ReadmeContractTests
 
         string[] precedence =
         {
-            "1. 全局已停止：拦截，原因是 `global-disabled`。",
-            "2. 对应分类已停止：拦截，原因是 `target-disabled`。",
+            "1. 全局已禁用：拦截，原因是 `global-disabled`。",
+            "2. 指定支援已禁用：拦截，原因是 `target-disabled`。",
             "3. 对应分类 `skip` 已就绪：拦截并只消费该分类 `skip`，原因是 `skip`。",
             "4. 全局 `skip` 已就绪：拦截并只消费全局 `skip`，原因是 `skip`。",
-            "5. 以上均不成立：允许增援生成。",
+            "5. 以上均不成立：放行支援刷新。",
         };
         Assert.All(precedence, line => Assert.Contains(line, readme, StringComparison.Ordinal));
     }
@@ -172,7 +172,7 @@ public sealed class ReadmeContractTests
 
         string[] nonGoals =
         {
-            "已经生成的玩家", "不会主动创建增援", "不会回溯已经发生的增援事件",
+            "已经生成的玩家", "不会主动创建支援", "不会回溯已经发生的支援事件",
         };
         Assert.All(nonGoals, term => Assert.Contains(term, readme, StringComparison.OrdinalIgnoreCase));
     }

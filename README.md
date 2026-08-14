@@ -2,15 +2,15 @@
 
 [![LabAPI](https://img.shields.io/badge/LabAPI-1.1.7-5865F2)](https://github.com/northwood-studios/LabAPI) [![SCP:SL](https://img.shields.io/badge/SCP%3ASL-14.2.7-2f3136)](https://store.steampowered.com/app/700330/SCP_Secret_Laboratory/) [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-ReinforcementGate 是一个基于 LabAPI 的 SCP: Secret Laboratory 服务器插件。它可以控制九尾狐和混沌分裂者的大增援、小增援的刷新，支持全局停止和跳过下一波刷新。
+ReinforcementGate 是一个基于 LabAPI 的 SCP: Secret Laboratory 服务器插件。它可以控制九尾狐和混沌分裂者的大支援、小支援的刷新，支持全局禁用和跳过下一波支援。
 
 > 主 README 使用中文。其他语言： [English](README.en.md) · [Polski](README.pl.md) · [Deutsch](README.de.md)
 
 ## 功能
 
-- 识别四类 LabAPI 增援波：`MtfWave`（`ntf`）、`MiniMtfWave`（`ntf-mini`）、`ChaosWave`（`ci`）和 `MiniChaosWave`（`ci-mini`）。
-- 分类开关与全局开关彼此独立，解除全局停止不会影响已有分类状态。
-- 支持分类或全局的单次跳过刷新波次 `skip`。
+- 识别四类 LabAPI 支援波：`MtfWave`（`ntf`）、`MiniMtfWave`（`ntf-mini`）、`ChaosWave`（`ci`）和 `MiniChaosWave`（`ci-mini`）。
+- 分类开关与全局开关彼此独立，解除全局禁用不会影响已有分类状态。
+- 支持分类或全局的单次跳过下一波支援 `skip`。
 - 命令执行时和实际拦截时可以分别配置 BC 公屏（Broadcast）与 CASSIE 广播。
 - 提供同步、强类型、只读快照状态 API、控制 API 和公共事件。
 - 配置重载只替换通知配置，不改变当前回合的运行时状态。
@@ -20,9 +20,9 @@ ReinforcementGate 是一个基于 LabAPI 的 SCP: Secret Laboratory 服务器插
 - SCP: Secret Laboratory Dedicated Server。
 - **LabAPI 1.1.7**；插件不依赖 EXILED 或 LabExtended。
 - .NET Framework 4.8（`net48`），x64，源码使用 C# 12。
-- 增援分类按 LabAPI 波类型判定，不按玩家数量或其他游戏状态猜测波次类型。
+- 支援分类按 LabAPI 波类型判定，不按玩家数量或其他游戏状态猜测波次类型。
 
-服务器、LabAPI 或游戏程序集版本发生变化后，应重新构建并在测试服验证事件签名和四类增援封装类型。
+服务器、LabAPI 或游戏程序集版本发生变化后，应重新构建并在测试服验证事件签名和四类支援封装类型。
 
 ## 安装
 
@@ -49,37 +49,37 @@ ReinforcementGate 是一个基于 LabAPI 的 SCP: Secret Laboratory 服务器插
 
 | 命令 | 作用 |
 | --- | --- |
-| `reinforcement status` | 查看全局、四类增援、本地状态和待执行的 `skip`。 |
-| `reinforcement enable <target>` | 允许目标增援；`all` 只解除全局停止。 |
-| `reinforcement disable <target>` | 持续停止目标增援；`all` 只启用全局停止。 |
-| `reinforcement skip <target>` | 跳过下一次匹配的增援；`all` 表示下一次任意已识别增援。 |
+| `reinforcement status` | 查看全局、四类支援、分类状态和待执行的 `skip`。 |
+| `reinforcement enable <target>` | 放行指定支援；`all` 只解除全局禁用。 |
+| `reinforcement disable <target>` | 持续禁用指定支援；`all` 只启用全局禁用。 |
+| `reinforcement skip <target>` | 跳过下一次匹配的支援；`all` 表示下一次任意已识别支援。 |
 | `reinforcement reset` | 立即恢复默认状态并清除所有 `skip`。 |
 
 可用目标：
 
 | 目标 | 含义 | LabAPI 波类型 |
 | --- | --- | --- |
-| `all` | 全部增援波次的全局控制 | 所有已识别增援 |
-| `ntf` | 九尾狐主增援 | `MtfWave` |
-| `ntf-mini` | 九尾狐迷你增援 | `MiniMtfWave` |
-| `ci` | 混沌分裂者主增援 | `ChaosWave` |
-| `ci-mini` | 混沌分裂者迷你增援 | `MiniChaosWave` |
+| `all` | 全部支援波次的全局控制 | 所有已识别支援 |
+| `ntf` | 九尾狐大支援（MTF Primary Wave / `MtfWave`） | `MtfWave` |
+| `ntf-mini` | 九尾狐小支援（MTF Mini-Wave / `MiniMtfWave`） | `MiniMtfWave` |
+| `ci` | 混沌大支援（CI Primary Wave / `ChaosWave`） | `ChaosWave` |
+| `ci-mini` | 混沌小支援（CI Mini-Wave / `MiniChaosWave`） | `MiniChaosWave` |
 
 示例：`rf disable ntf-mini`、`rf skip ci`、`rf enable all`。
 
 ## 状态与 `skip` 优先级
 
-每次已识别增援波到来时，按以下顺序决定是否放行：
+每次已识别支援波到来时，按以下顺序决定是否放行：
 
-1. 全局已停止：拦截，原因是 `global-disabled`。
-2. 对应分类已停止：拦截，原因是 `target-disabled`。
+1. 全局已禁用：拦截，原因是 `global-disabled`。
+2. 指定支援已禁用：拦截，原因是 `target-disabled`。
 3. 对应分类 `skip` 已就绪：拦截并只消费该分类 `skip`，原因是 `skip`。
 4. 全局 `skip` 已就绪：拦截并只消费全局 `skip`，原因是 `skip`。
-5. 以上均不成立：允许增援生成。
+5. 以上均不成立：放行支援刷新。
 
-持续停止的优先级高于 `skip`，所以被持续停止拦截时不会消费任何 `skip`。若同一分类 `skip` 与全局 `skip` 同时存在，分类 `skip` 先消费，全局 `skip` 留给后续下一次已识别增援。
+持续禁用的优先级高于 `skip`，所以被持续禁用拦截时不会消费任何 `skip`。若同一分类 `skip` 与全局 `skip` 同时存在，分类 `skip` 先消费，全局 `skip` 留给后续下一次已识别支援。
 
-全局开关不改写四个分类的本地开关。例如先执行 `disable ntf`，再执行 `disable all` 和 `enable all`，`ntf` 仍保持分类停止。每回合开始会恢复全部允许并清空所有 `skip`；运行时状态不会写入配置，也不会跨回合保存。
+全局开关不改写四个分类的分类开关。例如先执行 `disable ntf`，再执行 `disable all` 和 `enable all`，`ntf` 仍保持分类禁用。每回合开始会恢复全部放行并清空所有 `skip`；运行时状态不会写入配置，也不会跨回合保存。
 
 ## 权限
 
@@ -162,7 +162,7 @@ notifications:
 | --- | --- |
 | `enable_applied` | `enable` 确实改变状态后。 |
 | `disable_applied` | `disable` 确实改变状态后。 |
-| `disabled_wave_blocked` | 持续停止实际拦截增援时；默认 `None`，避免刷屏。 |
+| `disabled_wave_blocked` | 持续禁用实际拦截支援时；默认 `None`，避免刷屏。 |
 | `skip_armed` | `skip` 确实成功就绪后。 |
 | `skip_triggered` | 一次性 `skip` 真正拦截并被消费时。 |
 
@@ -187,14 +187,14 @@ BC、CASSIE 语音和字幕支持以下占位符：
 | 占位符 | 内容 |
 | --- | --- |
 | `{target}` | `all`、`ntf`、`ntf-mini`、`ci` 或 `ci-mini`。 |
-| `{target_name}` | `全部增援`、`九尾狐主增援`、`九尾狐迷你增援`、`混沌分裂者主增援` 或 `混沌分裂者迷你增援`。 |
+| `{target_name}` | `全部支援`、`九尾狐大支援`、`九尾狐小支援`、`混沌大支援` 或 `混沌小支援`。 |
 | `{admin}` | RA 管理员名称，或控制 API 传入的 `source`。 |
 | `{action}` | `enable`、`disable` 或 `skip`。 |
 | `{reason}` | `enable` 通知中为空字符串；`disable` 或实际拦截通知中为 `global-disabled`、`target-disabled` 或 `skip`。 |
 
 ## 只读状态 API
 
-第三方 LabAPI 插件引用 `ReinforcementGate.dll` 后，可通过 `ReinforcementStatesApi` 查询状态。快照及其中的目标字典/目标状态都是只读对象，不会暴露内部控制器。
+第三方 LabAPI 插件引用 `ReinforcementGate.dll` 后，可通过 `ReinforcementStatesApi` 查询状态。快照及其中的分类字典/单项状态都是只读对象，不会暴露内部控制器。
 
 ```csharp
 using LabApi.Features.Console;
@@ -254,9 +254,9 @@ ReinforcementEvents.WaveBlocked += (_, args) =>
 
 - `ReinforcementStatesApi.StateChanged`：状态改变后触发，携带不可变的 `StateTransitionResult`。
 - `ReinforcementStatesApi.RoundStateReset`：每回合状态重置后触发，即使重置前已经是默认状态。
-- `ReinforcementEvents.WaveBlocked`：实际拦截增援后触发，携带目标、`ReinforcementBlockReason`、来源和消费 `skip` 后的不可变快照。
+- `ReinforcementEvents.WaveBlocked`：实际拦截支援后触发，携带目标、`ReinforcementBlockReason`、来源和消费 `skip` 后的不可变快照。
 
-外部事件订阅者抛出的异常会被隔离，不会撤销已经完成的状态变化或增援拦截。插件卸载时会注销内部转发并清理公共订阅者。
+外部事件订阅者抛出的异常会被隔离，不会撤销已经完成的状态变化或支援拦截。插件卸载时会注销内部转发并清理公共订阅者。
 
 ## 构建与测试
 
@@ -269,15 +269,17 @@ dotnet build ReinforcementGate.sln --configuration Release --no-restore
 dotnet test tests/ReinforcementGate.Tests/ReinforcementGate.Tests.csproj --configuration Release --no-build
 ```
 
-产物位于 `src/ReinforcementGate/bin/Release/net48/ReinforcementGate.dll`。发布前必须使用目标服务器版本的真实程序集完成 Release 构建，并在测试服验证插件加载、配置重载、四类增援识别、BC/CASSIE 和回合重置。仅用编译桩通过单元测试不代表服务器兼容。
+产物位于 `src/ReinforcementGate/bin/Release/net48/ReinforcementGate.dll`。发布前必须使用目标服务器版本的真实程序集完成 Release 构建，并在测试服验证插件加载、配置重载、四类支援识别、BC/CASSIE 和回合重置。仅用编译桩通过单元测试不代表服务器兼容。
+
+公开 CI 不下载或再分发 SCP:SL 游戏程序集；CI 只执行 restore、格式、仓库二进制和差异检查。需要 `SL_REFERENCES` 的 Release 构建、单元测试和实服兼容性验证必须在本地或受控测试环境完成。
 
 ## 已知限制
 
-- 插件只决定 LabAPI 已提供的未来增援事件是否放行。
-- 插件不会主动创建增援，也不会回溯已经发生的增援事件。
+- 插件只决定 LabAPI 已提供的未来支援事件是否放行。
+- 插件不会主动创建支援，也不会回溯已经发生的支援事件。
 - 插件不会处理已经生成的玩家、角色或阵营。
 - 插件每回合开始会恢复默认。
-- 未知或未来新增的增援封装类型会被放行并记录限频警告，不会被猜测归类。
+- 未知或未来新增的支援封装类型会被放行并记录限频警告，不会被猜测归类。
 - 配置与公共 API 是同步路径；API 只能从服务器主线程安全调用。
 - 本项目不安装、升级或配置游戏服务器与 LabAPI 环境。
 
@@ -286,6 +288,7 @@ dotnet test tests/ReinforcementGate.Tests/ReinforcementGate.Tests.csproj --confi
 - [贡献指南](CONTRIBUTING.md)
 - [行为准则](CODE_OF_CONDUCT.md)
 - [获取帮助](SUPPORT.md)
+- [安全策略](SECURITY.md)
 - [Issue 模板](.github/ISSUE_TEMPLATE/)
 - [Pull Request 模板](.github/PULL_REQUEST_TEMPLATE.md)
 

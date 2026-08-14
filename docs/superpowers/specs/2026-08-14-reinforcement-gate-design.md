@@ -11,7 +11,7 @@
 
 ## 1. 项目概述
 
-ReinforcementGate 是一个 SCP: Secret Laboratory 服务端插件。管理员可以通过 Remote Admin 命令独立控制九尾狐和混沌分裂者的主支援波、迷你支援波，也可以全局停止支援或一次性跳过下一次匹配的支援。
+ReinforcementGate 是一个 SCP: Secret Laboratory 服务端插件。管理员可以通过 Remote Admin 命令独立控制九尾狐和混沌分裂者的大支援、小支援，也可以全局禁用支援或一次性跳过下一次匹配的支援。
 
 插件只拦截未来的支援刷新。已经刷新并存活的玩家不会被移除、处决、改变角色或改变阵营。
 
@@ -22,10 +22,10 @@ ReinforcementGate 是一个 SCP: Secret Laboratory 服务端插件。管理员�
 ### 2.1 目标
 
 - 独立控制四类支援：`ntf`、`ntf-mini`、`ci`、`ci-mini`。
-- 提供不覆盖分类状态的全局停止开关。
+- 提供不覆盖分类状态的全局禁用开关。
 - 支持全局或分类的一次性跳过。
 - 仅通过 Remote Admin 命令管理运行时状态。
-- 每回合开始恢复全部允许并清除待执行跳过。
+- 每回合开始恢复全部放行并清除待执行跳过。
 - 支持可配置的 BC/CASSIE 通知模板。
 - 提供强类型公共 API，供其他插件查询、控制和监听。
 - 单独开放只读 `ReinforcementStatesApi`，供跨插件查看当前状态。
@@ -102,7 +102,7 @@ rf reset
 
 `enable`、`disable`、`skip`、`reset` 必须检查 `PlayerPermissions.RespawnEvents`。权限不足时返回明确错误，不改变状态，也不发送通知。
 
-命令成功响应必须包含：执行动作、目标、变更前状态、变更后状态和当前有效状态。这样在全局停止仍开启时，管理员执行 `rf enable ntf` 能看到“分类状态已恢复，但仍受全局停止影响”。
+命令成功响应必须包含：执行动作、目标、变更前状态、变更后状态和当前有效状态。这样在全局禁用仍开启时，管理员执行 `rf enable ntf` 能看到“分类状态已恢复，但仍受全局禁用影响”。
 
 ## 5. 状态模型与行为
 
@@ -110,24 +110,24 @@ rf reset
 
 状态服务保存：
 
-- 一个全局持续停止标记。
-- 四个分类允许标记。
+- 一个全局持续禁用标记。
+- 四个分类放行标记。
 - 一个全局一次性跳过标记。
 - 四个分类一次性跳过标记。
 - 每个持续状态和一次性跳过的来源字符串，用于通知和审计事件。
 
 默认状态：
 
-- 全局持续停止关闭。
-- 四个分类全部允许。
+- 全局持续禁用关闭。
+- 四个分类全部放行。
 - 所有一次性跳过均未设置。
 
 ### 5.2 全局与分类状态
 
-- `rf disable all` 只开启全局停止，不覆盖四个分类标记。
-- `rf enable all` 只解除全局停止，不覆盖四个分类标记。
-- `rf reset` 解除全局停止、恢复四个分类并清空全部一次性跳过。
-- `rf enable <分类>` 在全局停止期间仍会修改该分类的保存状态，但其有效状态仍是禁止。
+- `rf disable all` 只开启全局禁用，不覆盖四个分类标记。
+- `rf enable all` 只解除全局禁用，不覆盖四个分类标记。
+- `rf reset` 解除全局禁用、恢复四个分类并清空全部一次性跳过。
+- `rf enable <分类>` 在全局禁用期间仍会修改该分类的保存状态，但其有效状态仍是禁止。
 
 ### 5.3 回合边界
 
@@ -141,7 +141,7 @@ rf reset
 
 1. 将 `ev.Wave` 分类为四类目标之一。
 2. 未知类型：放行并记录一次警告。
-3. 全局持续停止开启：设置 `ev.IsAllowed = false`，不消耗任何一次性跳过。
+3. 全局持续禁用开启：设置 `ev.IsAllowed = false`，不消耗任何一次性跳过。
 4. 对应分类关闭：设置 `ev.IsAllowed = false`，不消耗任何一次性跳过。
 5. 对应分类的一次性跳过已设置：清除该分类跳过并取消刷新。
 6. 否则，全局一次性跳过已设置：清除全局跳过并取消刷新。
@@ -149,7 +149,7 @@ rf reset
 
 当 `rf skip all` 和 `rf skip ntf` 同时存在时，下一次 NTF 支援只消耗 `ntf`；全局跳过保留给之后的下一次可刷新支援。由此保证每条跳过指令实际对应一波独立的拦截。
 
-持续停止期间发生的刷新尝试不会消耗待执行跳过。解除持续停止后，待执行跳过仍然生效。
+持续禁用期间发生的刷新尝试不会消耗待执行跳过。解除持续禁用后，待执行跳过仍然生效。
 
 ## 6. 内部架构
 
@@ -175,7 +175,7 @@ rf reset
 
 ### 6.4 `WaveInterceptionService`
 
-- 按固定优先级计算本波是否允许。
+- 按固定优先级计算本波是否放行。
 - 只在最终决定为禁止时修改 `ev.IsAllowed`。
 - 生成包含目标、原因、来源和已消费跳过项的不可变结果。
 - 先完成支援决策，再调用通知服务；通知失败不能反向改变决策。
@@ -236,12 +236,12 @@ notifications:
   disable_applied:
     mode: Both
     broadcast:
-      message: "<color=red>{target_name} 已停止刷新</color>"
+      message: "<color=red>{target_name} 已禁用刷新</color>"
       duration: 8
       clear_previous: false
     cassie:
       message: "REINFORCEMENT SUSPENDED"
-      subtitles: "{target_name} 已停止刷新"
+      subtitles: "{target_name} 已禁用刷新"
       play_background: true
       priority: 0
       glitch_scale: 0
@@ -272,7 +272,7 @@ notifications:
 
 `enable_applied`、`disable_applied` 和 `skip_armed` 在状态实际发生变化后发送。重复执行未造成状态变化时不发送。
 
-`skip_triggered` 只在一次性跳过真正拦截一波时发送。`disabled_wave_blocked` 在持续停止实际拦截一波时发送，默认关闭以防刷屏。
+`skip_triggered` 只在一次性跳过真正拦截一波时发送。`disabled_wave_blocked` 在持续禁用实际拦截一波时发送，默认关闭以防刷屏。
 
 公开占位符：
 
@@ -413,21 +413,21 @@ ReinforcementEvents.WaveBlocked
 
 - 默认状态和回合重置。
 - 四类目标独立启用、禁用。
-- 全局停止不覆盖分类状态。
-- `enable all` 解除全局停止后保留分类禁用。
+- 全局禁用不覆盖分类状态。
+- `enable all` 解除全局禁用后保留分类禁用。
 - 分类跳过优先于全局跳过。
-- 持续停止不消费一次性跳过。
+- 持续禁用不消费一次性跳过。
 - 每个一次性跳过只消费一次。
 - 命令主名称和 `rf` 别名。
 - `status` 对无 `RespawnEvents` 权限的 RA 调用者保持可用。
-- `enable`、`disable`、`skip`、`reset` 的 `RespawnEvents` 权限允许和拒绝路径。
+- `enable`、`disable`、`skip`、`reset` 的 `RespawnEvents` 权限放行和拒绝路径。
 - 无效参数不改变状态。
 - 重复操作不广播。
 - 四种通知模式。
 - 白名单占位符替换。
 - 无效配置节点回退。
 - 公共 API 查询、修改和事件参数不可变性。
-- `ReinforcementStatesApi` 跨程序集读取全局、四分类、本地、有效和跳过状态。
+- `ReinforcementStatesApi` 跨程序集读取全局、四分类、单项、有效和跳过状态。
 - `ReinforcementStatesApi` 在插件未就绪、卸载后及无效目标下的约定行为。
 
 ### 10.2 集成测试
@@ -436,7 +436,7 @@ ReinforcementEvents.WaveBlocked
 - `MiniMtfWave` 被识别为 `ntf-mini`。
 - `ChaosWave` 被识别为 `ci`。
 - `MiniChaosWave` 被识别为 `ci-mini`。
-- 四类支援分别在允许、持续禁止、一次跳过状态下行为正确。
+- 四类支援分别在放行、持续禁用、一次跳过状态下行为正确。
 - BC 与 CASSIE 能独立和同时工作。
 - 通知发送失败不影响 `ev.IsAllowed` 的最终结果。
 - 未知波类型保持放行。
@@ -446,7 +446,7 @@ ReinforcementEvents.WaveBlocked
 ### 10.3 验收标准
 
 - 四类支援能够独立控制。
-- 全局停止和四类状态互不覆盖。
+- 全局禁用和四类状态互不覆盖。
 - 全局与分类一次性跳过均准确消费。
 - 每回合开始恢复默认状态。
 - 所有 RA 调用者都能执行只读的 `status`。
@@ -464,7 +464,7 @@ ReinforcementEvents.WaveBlocked
 - DLL 安装位置与插件加载说明。
 - 完整 RA 命令表、`rf` 别名和五个目标。
 - 权限规则：`status` 对所有 RA 调用者开放，状态修改命令要求 `RespawnEvents`。
-- 全局停止、分类状态和一次性跳过的优先级示例。
+- 全局禁用、分类状态和一次性跳过的优先级示例。
 - 完整默认配置和每个配置字段说明。
 - BC/CASSIE 四种模式及全部占位符。
 - 公共 API 类型、方法和事件说明。
