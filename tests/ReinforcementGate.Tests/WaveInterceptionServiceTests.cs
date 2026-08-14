@@ -56,7 +56,8 @@ public sealed class WaveInterceptionServiceTests : IDisposable
             notifications.Items,
             x => x.Kind == NotificationKind.SkipTriggered);
         Assert.Equal("Admin", item.Context.Admin);
-        Assert.Equal(ReinforcementBlockReason.TargetSkip.ToString(), item.Context.Reason);
+        Assert.Equal("skip", item.Context.Action);
+        Assert.Equal("skip", item.Context.Reason);
     }
 
     [Fact]
@@ -75,7 +76,8 @@ public sealed class WaveInterceptionServiceTests : IDisposable
             notifications.Items,
             x => x.Kind == NotificationKind.DisabledWaveBlocked);
         Assert.Equal("Admin A", item.Context.Admin);
-        Assert.Equal(ReinforcementBlockReason.TargetDisabled.ToString(), item.Context.Reason);
+        Assert.Equal("disable", item.Context.Action);
+        Assert.Equal("target-disabled", item.Context.Reason);
     }
 
     [Fact]
@@ -119,7 +121,7 @@ public sealed class WaveInterceptionServiceTests : IDisposable
     [Theory]
     [InlineData(ReinforcementBlockReason.TargetSkip)]
     [InlineData(ReinforcementBlockReason.GlobalSkip)]
-    public void Skip_reasons_use_skip_triggered_notification(ReinforcementBlockReason reason)
+    public void Skip_reasons_use_skip_template_values(ReinforcementBlockReason reason)
     {
         CountingController controller = new(WaveDecision.Blocked(
             ReinforcementTarget.NtfMini,
@@ -130,13 +132,18 @@ public sealed class WaveInterceptionServiceTests : IDisposable
 
         Assert.True(service.ShouldBlock(ReinforcementTarget.NtfMini));
 
-        Assert.Equal(NotificationKind.SkipTriggered, Assert.Single(notifications.Items).Kind);
+        NotificationRecord item = Assert.Single(notifications.Items);
+        Assert.Equal(NotificationKind.SkipTriggered, item.Kind);
+        Assert.Equal("skip", item.Context.Action);
+        Assert.Equal("skip", item.Context.Reason);
     }
 
     [Theory]
-    [InlineData(ReinforcementBlockReason.TargetDisabled)]
-    [InlineData(ReinforcementBlockReason.GlobalDisabled)]
-    public void Persistent_reasons_use_disabled_wave_notification(ReinforcementBlockReason reason)
+    [InlineData(ReinforcementBlockReason.TargetDisabled, "target-disabled")]
+    [InlineData(ReinforcementBlockReason.GlobalDisabled, "global-disabled")]
+    public void Persistent_reasons_use_disable_template_values(
+        ReinforcementBlockReason reason,
+        string expectedReason)
     {
         CountingController controller = new(WaveDecision.Blocked(
             ReinforcementTarget.CiMini,
@@ -147,7 +154,10 @@ public sealed class WaveInterceptionServiceTests : IDisposable
 
         Assert.True(service.ShouldBlock(ReinforcementTarget.CiMini));
 
-        Assert.Equal(NotificationKind.DisabledWaveBlocked, Assert.Single(notifications.Items).Kind);
+        NotificationRecord item = Assert.Single(notifications.Items);
+        Assert.Equal(NotificationKind.DisabledWaveBlocked, item.Kind);
+        Assert.Equal("disable", item.Context.Action);
+        Assert.Equal(expectedReason, item.Context.Reason);
     }
 
     [Fact]

@@ -63,8 +63,8 @@ public sealed class WaveInterceptionService
                     target,
                     ReinforcementTargetNames.ToDisplayName(target),
                     decision.Source,
-                    "wave-blocked",
-                    reason.ToString()));
+                    GetNotificationAction(reason),
+                    GetNotificationReason(reason)));
         }
         catch (Exception exception)
         {
@@ -77,6 +77,24 @@ public sealed class WaveInterceptionService
     private static bool IsSkip(ReinforcementBlockReason reason) =>
         reason == ReinforcementBlockReason.TargetSkip ||
         reason == ReinforcementBlockReason.GlobalSkip;
+
+    private static string GetNotificationAction(ReinforcementBlockReason reason) => reason switch
+    {
+        ReinforcementBlockReason.TargetSkip => "skip",
+        ReinforcementBlockReason.GlobalSkip => "skip",
+        ReinforcementBlockReason.TargetDisabled => "disable",
+        ReinforcementBlockReason.GlobalDisabled => "disable",
+        _ => throw new ArgumentOutOfRangeException(nameof(reason), reason, "Unknown reinforcement block reason."),
+    };
+
+    private static string GetNotificationReason(ReinforcementBlockReason reason) => reason switch
+    {
+        ReinforcementBlockReason.TargetSkip => "skip",
+        ReinforcementBlockReason.GlobalSkip => "skip",
+        ReinforcementBlockReason.TargetDisabled => "target-disabled",
+        ReinforcementBlockReason.GlobalDisabled => "global-disabled",
+        _ => throw new ArgumentOutOfRangeException(nameof(reason), reason, "Unknown reinforcement block reason."),
+    };
 
     private void TryLogError(string message, Exception exception)
     {
