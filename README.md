@@ -266,7 +266,7 @@ ReinforcementEvents.WaveBlocked += (_, args) =>
 
 ## Building and testing
 
-需要 .NET SDK 与 SCP:SL 专用服务器的真实托管程序集。将 `SL_REFERENCES` 指向同时包含 `Assembly-CSharp.dll` 和 `CommandSystem.Core.dll` 的目录：
+需要 .NET SDK 与 SCP:SL 专用服务器的真实服务器程序集（托管程序集）。将 `SL_REFERENCES` 指向同时包含 `Assembly-CSharp.dll` 和 `CommandSystem.Core.dll` 的目录：
 
 ```powershell
 $env:SL_REFERENCES = "D:\SCPServer\SCPSL_Data\Managed"

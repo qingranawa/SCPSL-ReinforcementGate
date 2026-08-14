@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using ReinforcementGate.Configuration;
 using ReinforcementGate.Notifications;
 using Xunit;
@@ -73,6 +75,38 @@ public sealed class ReadmeContractTests
             .WithNamingConvention(UnderscoredNamingConvention.Instance)
             .Build();
 
+        IDictionary<object, object> root =
+            deserializer.Deserialize<Dictionary<object, object>>(yaml);
+        AssertExactKeys(root, "notifications");
+        IDictionary<object, object> notifications = GetMap(root, "notifications");
+        string[] notificationNames =
+        {
+            "enable_applied",
+            "disable_applied",
+            "disabled_wave_blocked",
+            "skip_armed",
+            "skip_triggered",
+        };
+        AssertExactKeys(notifications, notificationNames);
+
+        foreach (string notificationName in notificationNames)
+        {
+            IDictionary<object, object> node = GetMap(notifications, notificationName);
+            AssertExactKeys(node, "mode", "broadcast", "cassie");
+            AssertExactKeys(
+                GetMap(node, "broadcast"),
+                "message",
+                "duration",
+                "clear_previous");
+            AssertExactKeys(
+                GetMap(node, "cassie"),
+                "message",
+                "subtitles",
+                "play_background",
+                "priority",
+                "glitch_scale");
+        }
+
         ReinforcementGateConfig documented = deserializer.Deserialize<ReinforcementGateConfig>(yaml);
         NotificationsConfig actual = documented.Notifications;
 
@@ -98,6 +132,28 @@ public sealed class ReadmeContractTests
         Assert.All(fields, field => Assert.Contains(field, ReadReadme(), StringComparison.Ordinal));
         Assert.All(new[] { "`None`", "`Broadcast`", "`Cassie`", "`Both`" },
             mode => Assert.Contains(mode, ReadReadme(), StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Readme_documents_compatibility_build_commands_and_live_validation_boundary()
+    {
+        string readme = ReadReadme();
+
+        Assert.Contains("LabAPI 1.1.7", readme, StringComparison.Ordinal);
+        Assert.Contains(".NET Framework 4.8（`net48`）", readme, StringComparison.Ordinal);
+        Assert.Contains("插件不依赖 EXILED 或 LabExtended。", readme, StringComparison.Ordinal);
+        Assert.Contains("SL_REFERENCES", readme, StringComparison.Ordinal);
+        Assert.Contains(
+            "dotnet build ReinforcementGate.sln --configuration Release --no-restore",
+            readme,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "dotnet test tests/ReinforcementGate.Tests/ReinforcementGate.Tests.csproj --configuration Release --no-build",
+            readme,
+            StringComparison.Ordinal);
+        Assert.Contains("真实服务器程序集", readme, StringComparison.Ordinal);
+        Assert.Contains("在测试服验证", readme, StringComparison.Ordinal);
+        Assert.Contains("仅用编译桩通过单元测试不代表服务器兼容", readme, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -142,6 +198,25 @@ public sealed class ReadmeContractTests
         int closingFence = readme.IndexOf("```", yamlStart, StringComparison.Ordinal);
         Assert.True(closingFence >= 0, "README default YAML fence must be closed.");
         return readme.Substring(yamlStart, closingFence - yamlStart);
+    }
+
+    private static IDictionary<object, object> GetMap(
+        IDictionary<object, object> parent,
+        string key)
+    {
+        Assert.True(parent.TryGetValue(key, out object? value), $"YAML key '{key}' is required.");
+        return Assert.IsAssignableFrom<IDictionary<object, object>>(value);
+    }
+
+    private static void AssertExactKeys(
+        IDictionary<object, object> map,
+        params string[] expected)
+    {
+        string[] actual = map.Keys.Select(key => Assert.IsType<string>(key))
+            .OrderBy(key => key, StringComparer.Ordinal)
+            .ToArray();
+        string[] sortedExpected = expected.OrderBy(key => key, StringComparer.Ordinal).ToArray();
+        Assert.Equal(sortedExpected, actual);
     }
 
     private static void AssertNode(
