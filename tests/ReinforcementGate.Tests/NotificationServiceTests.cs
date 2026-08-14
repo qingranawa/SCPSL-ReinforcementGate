@@ -293,7 +293,7 @@ public sealed class NotificationServiceTests : IDisposable
     {
         public static NotificationContext Context { get; } = new(
             ReinforcementTarget.NtfMini,
-            "九尾狐小支援",
+            "九尾狐迷你增援",
             "Admin",
             "skip",
             "skip");

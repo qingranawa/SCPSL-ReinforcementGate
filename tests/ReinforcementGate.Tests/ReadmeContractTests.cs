@@ -39,11 +39,11 @@ public sealed class ReadmeContractTests
 
         string[] targetRows =
         {
-            "| `all` | 全部支援的全局控制",
-            "| `ntf` | 九尾狐大支援 | `MtfWave` |",
-            "| `ntf-mini` | 九尾狐小支援 | `MiniMtfWave` |",
-            "| `ci` | 混沌大支援 | `ChaosWave` |",
-            "| `ci-mini` | 混沌小支援 | `MiniChaosWave` |",
+            "| `all` | 全部增援波次的全局控制",
+            "| `ntf` | 九尾狐主增援 | `MtfWave` |",
+            "| `ntf-mini` | 九尾狐迷你增援 | `MiniMtfWave` |",
+            "| `ci` | 混沌分裂者主增援 | `ChaosWave` |",
+            "| `ci-mini` | 混沌分裂者迷你增援 | `MiniChaosWave` |",
         };
         Assert.All(targetRows, row => Assert.Contains(row, readme, StringComparison.Ordinal));
 
@@ -60,9 +60,9 @@ public sealed class ReadmeContractTests
         {
             "1. 全局已停止：拦截，原因是 `global-disabled`。",
             "2. 对应分类已停止：拦截，原因是 `target-disabled`。",
-            "3. 对应分类 skip 已就绪：拦截并只消费该分类 skip，原因是 `skip`。",
-            "4. 全局 skip 已就绪：拦截并只消费全局 skip，原因是 `skip`。",
-            "5. 以上均不成立：允许刷新。",
+            "3. 对应分类 `skip` 已就绪：拦截并只消费该分类 `skip`，原因是 `skip`。",
+            "4. 全局 `skip` 已就绪：拦截并只消费全局 `skip`，原因是 `skip`。",
+            "5. 以上均不成立：允许增援生成。",
         };
         Assert.All(precedence, line => Assert.Contains(line, readme, StringComparison.Ordinal));
     }
@@ -157,7 +157,7 @@ public sealed class ReadmeContractTests
         Assert.All(
             new[] { "{target}", "{target_name}", "{admin}", "{action}", "{reason}" },
             token => Assert.Contains($"| `{token}` |", readme, StringComparison.Ordinal));
-        Assert.Contains("enable 通知中为空字符串", readme, StringComparison.Ordinal);
+        Assert.Contains("`enable` 通知中为空字符串", readme, StringComparison.Ordinal);
 
         Assert.Contains("ReinforcementStatesApi.IsAvailable", readme, StringComparison.Ordinal);
         Assert.Contains("ReinforcementStateSnapshot snapshot = ReinforcementStatesApi.GetSnapshot();", readme, StringComparison.Ordinal);
@@ -172,7 +172,7 @@ public sealed class ReadmeContractTests
 
         string[] nonGoals =
         {
-            "已经刷新的玩家", "支援计时器", "influence", "tokens", "wave population", "vehicles",
+            "已经生成的玩家", "不会主动创建增援", "不会回溯已经发生的增援事件",
         };
         Assert.All(nonGoals, term => Assert.Contains(term, readme, StringComparison.OrdinalIgnoreCase));
     }

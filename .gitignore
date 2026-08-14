@@ -1,3 +1,4 @@
+.DS_Store
 .vs/
 .idea/
 bin/
@@ -5,3 +6,5 @@ obj/
 TestResults/
 *.user
 *.suo
+/.superpowers/
+/.local-server/

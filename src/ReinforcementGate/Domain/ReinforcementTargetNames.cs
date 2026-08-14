@@ -19,11 +19,11 @@ public static class ReinforcementTargetNames
     /// <summary>Returns the canonical Chinese display name for a target.</summary>
     public static string ToDisplayName(ReinforcementTarget target) => target switch
     {
-        ReinforcementTarget.All => "全部支援",
-        ReinforcementTarget.Ntf => "九尾狐大支援",
-        ReinforcementTarget.NtfMini => "九尾狐小支援",
-        ReinforcementTarget.Ci => "混沌大支援",
-        ReinforcementTarget.CiMini => "混沌小支援",
+        ReinforcementTarget.All => "全部增援",
+        ReinforcementTarget.Ntf => "九尾狐主增援",
+        ReinforcementTarget.NtfMini => "九尾狐迷你增援",
+        ReinforcementTarget.Ci => "混沌分裂者主增援",
+        ReinforcementTarget.CiMini => "混沌分裂者迷你增援",
         _ => throw new ArgumentOutOfRangeException(nameof(target), target, "Unknown reinforcement target."),
     };
 }

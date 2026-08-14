@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 使用文档与配置说明
+    url: https://github.com/qingranawa/SCPSL-ReinforcementGate/blob/main/README.md
+    about: 提交 Issue 前先查看命令、权限、配置和兼容性说明。
+  - name: 安全漏洞报告
+    url: https://github.com/qingranawa/SCPSL-ReinforcementGate/security
+    about: 不要在公开 Issue 中披露可利用的安全问题。
