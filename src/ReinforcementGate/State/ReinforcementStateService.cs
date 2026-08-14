@@ -78,12 +78,18 @@ public sealed class ReinforcementStateService : IReinforcementController
             {
                 if (target == ReinforcementTarget.All)
                 {
+                    if (_globalDisabled == !enabled)
+                        return;
+
                     _globalDisabled = !enabled;
                     _globalDisabledSource = source;
                     return;
                 }
 
                 MutableTargetState local = _targets[target];
+                if (local.IsEnabled == enabled)
+                    return;
+
                 local.IsEnabled = enabled;
                 local.EnabledSource = source;
             });
@@ -99,12 +105,18 @@ public sealed class ReinforcementStateService : IReinforcementController
         {
             if (target == ReinforcementTarget.All)
             {
+                if (_globalSkipArmed)
+                    return;
+
                 _globalSkipArmed = true;
                 _globalSkipSource = source;
                 return;
             }
 
             MutableTargetState local = _targets[target];
+            if (local.IsSkipArmed)
+                return;
+
             local.IsSkipArmed = true;
             local.SkipSource = source;
         });
@@ -120,12 +132,18 @@ public sealed class ReinforcementStateService : IReinforcementController
         {
             if (target == ReinforcementTarget.All)
             {
+                if (!_globalSkipArmed)
+                    return;
+
                 _globalSkipArmed = false;
                 _globalSkipSource = source;
                 return;
             }
 
             MutableTargetState local = _targets[target];
+            if (!local.IsSkipArmed)
+                return;
+
             local.IsSkipArmed = false;
             local.SkipSource = source;
         });
@@ -197,7 +215,7 @@ public sealed class ReinforcementStateService : IReinforcementController
         });
 
         if (publishRoundReset)
-            RoundStateReset?.Invoke(this, EventArgs.Empty);
+            PublishRoundStateReset();
 
         return result;
     }
@@ -247,9 +265,48 @@ public sealed class ReinforcementStateService : IReinforcementController
             source);
 
         if (result.Changed)
-            StateChanged?.Invoke(this, new ReinforcementStateChangedEventArgs(result));
+            PublishStateChanged(result);
 
         return result;
+    }
+
+    private void PublishStateChanged(StateTransitionResult result)
+    {
+        EventHandler<ReinforcementStateChangedEventArgs>? handlers = StateChanged;
+        if (handlers is null)
+            return;
+
+        ReinforcementStateChangedEventArgs args = new(result);
+        foreach (EventHandler<ReinforcementStateChangedEventArgs> handler in handlers.GetInvocationList())
+        {
+            try
+            {
+                handler(this, args);
+            }
+            catch
+            {
+                // External observers cannot invalidate an already committed state transition.
+            }
+        }
+    }
+
+    private void PublishRoundStateReset()
+    {
+        EventHandler? handlers = RoundStateReset;
+        if (handlers is null)
+            return;
+
+        foreach (EventHandler handler in handlers.GetInvocationList())
+        {
+            try
+            {
+                handler(this, EventArgs.Empty);
+            }
+            catch
+            {
+                // External observers cannot invalidate an already completed round reset.
+            }
+        }
     }
 
     private ReinforcementStateSnapshot BuildSnapshot()

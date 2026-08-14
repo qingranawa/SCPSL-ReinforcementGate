@@ -75,9 +75,70 @@ public sealed class ReinforcementStateServiceTests
         state.StateChanged += (_, _) => stateEvents++;
         state.RoundStateReset += (_, _) => roundEvents++;
 
-        state.ResetForRound();
+        StateTransitionResult first = state.ResetForRound();
+        StateTransitionResult second = state.ResetForRound();
 
-        Assert.Equal(1, roundEvents);
+        Assert.True(first.Changed);
+        Assert.False(second.Changed);
+        Assert.Equal(1, stateEvents);
+        Assert.Equal(2, roundEvents);
+    }
+
+    [Theory]
+    [InlineData(ReinforcementTarget.Ntf)]
+    [InlineData(ReinforcementTarget.All)]
+    public void Repeated_enable_and_disable_with_new_sources_are_no_op_transitions(ReinforcementTarget target)
+    {
+        ReinforcementStateService state = new();
+        StateTransitionResult firstDisable = state.SetEnabled(target, false, "disable-first");
+        StateTransitionResult repeatedDisable = state.SetEnabled(target, false, "disable-second");
+        StateTransitionResult firstEnable = state.SetEnabled(target, true, "enable-first");
+        StateTransitionResult repeatedEnable = state.SetEnabled(target, true, "enable-second");
+
+        Assert.True(firstDisable.Changed);
+        Assert.False(repeatedDisable.Changed);
+        Assert.Equal("disable-first", GetEnabledSource(repeatedDisable.After, target));
+        Assert.True(firstEnable.Changed);
+        Assert.False(repeatedEnable.Changed);
+        Assert.Equal("enable-first", GetEnabledSource(repeatedEnable.After, target));
+    }
+
+    [Theory]
+    [InlineData(ReinforcementTarget.Ci)]
+    [InlineData(ReinforcementTarget.All)]
+    public void Repeated_arm_and_clear_skip_with_new_sources_are_no_op_transitions(ReinforcementTarget target)
+    {
+        ReinforcementStateService state = new();
+        StateTransitionResult firstArm = state.ArmSkip(target, "arm-first");
+        StateTransitionResult repeatedArm = state.ArmSkip(target, "arm-second");
+        StateTransitionResult firstClear = state.ClearSkip(target, "clear-first");
+        StateTransitionResult repeatedClear = state.ClearSkip(target, "clear-second");
+
+        Assert.True(firstArm.Changed);
+        Assert.False(repeatedArm.Changed);
+        Assert.Equal("arm-first", GetSkipSource(repeatedArm.After, target));
+        Assert.True(firstClear.Changed);
+        Assert.False(repeatedClear.Changed);
+        Assert.Equal("clear-first", GetSkipSource(repeatedClear.After, target));
+    }
+
+    [Fact]
+    public void Throwing_state_listener_cannot_interrupt_skip_block_decision()
+    {
+        ReinforcementStateService state = new();
+        state.ArmSkip(ReinforcementTarget.NtfMini, "skip-source");
+        int healthyListenerCalls = 0;
+        state.StateChanged += (_, _) => throw new InvalidOperationException("subscriber failure");
+        state.StateChanged += (_, _) => healthyListenerCalls++;
+
+        WaveDecision decision = state.EvaluateWave(ReinforcementTarget.NtfMini);
+
+        Assert.True(decision.IsBlocked);
+        Assert.Equal(ReinforcementBlockReason.TargetSkip, decision.Reason);
+        Assert.Equal("skip-source", decision.Source);
+        Assert.NotNull(decision.SkipConsumption);
+        Assert.False(state.GetState(ReinforcementTarget.NtfMini).IsSkipArmed);
+        Assert.Equal(1, healthyListenerCalls);
     }
 
     [Theory]
@@ -100,4 +161,14 @@ public sealed class ReinforcementStateServiceTests
         Assert.Throws<ArgumentOutOfRangeException>(() => state.TryGetState(ReinforcementTarget.All, out _));
         Assert.Throws<ArgumentOutOfRangeException>(() => state.EvaluateWave(ReinforcementTarget.All));
     }
+
+    private static string GetEnabledSource(ReinforcementStateSnapshot snapshot, ReinforcementTarget target) =>
+        target == ReinforcementTarget.All
+            ? snapshot.GlobalDisabledLastChangedBy
+            : snapshot.Targets[target].EnabledLastChangedBy;
+
+    private static string GetSkipSource(ReinforcementStateSnapshot snapshot, ReinforcementTarget target) =>
+        target == ReinforcementTarget.All
+            ? snapshot.GlobalSkipLastChangedBy
+            : snapshot.Targets[target].SkipLastChangedBy;
 }
