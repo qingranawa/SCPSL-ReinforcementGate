@@ -173,6 +173,87 @@ public sealed class ConfigurationAndTemplateTests
     }
 
     [Fact]
+    public void Undefined_notification_mode_restores_the_entire_default_node()
+    {
+        NotificationNodeConfig node = NotificationNodeConfig.CreateEnableAppliedDefault();
+        node.Mode = (NotificationMode)999;
+        node.Broadcast.Message = "custom";
+
+        NotificationNodeConfig normalized = NotificationConfigNormalizer.NormalizeNode(
+            "notifications.enable_applied",
+            node,
+            NotificationNodeConfig.CreateEnableAppliedDefault());
+
+        Assert.Equal(NotificationMode.Broadcast, normalized.Mode);
+        Assert.Equal("<color=green>{target_name} 已恢复刷新</color>", normalized.Broadcast.Message);
+    }
+
+    [Theory]
+    [InlineData("broadcast.message")]
+    [InlineData("cassie.message")]
+    [InlineData("cassie.subtitles")]
+    public void Null_template_field_restores_the_entire_default_node(string field)
+    {
+        NotificationNodeConfig node = NotificationNodeConfig.CreateSkipTriggeredDefault();
+        node.Mode = NotificationMode.Cassie;
+        node.Broadcast.Message = "custom";
+
+        switch (field)
+        {
+            case "broadcast.message":
+                node.Broadcast.Message = null!;
+                break;
+            case "cassie.message":
+                node.Cassie.Message = null!;
+                break;
+            case "cassie.subtitles":
+                node.Cassie.Subtitles = null!;
+                break;
+        }
+
+        NotificationNodeConfig normalized = NotificationConfigNormalizer.NormalizeNode(
+            "notifications.skip_triggered",
+            node,
+            NotificationNodeConfig.CreateSkipTriggeredDefault());
+
+        Assert.Equal(NotificationMode.Both, normalized.Mode);
+        Assert.Equal("{target_name} 支援已被跳过", normalized.Broadcast.Message);
+        Assert.Equal("REINFORCEMENT WAVE CANCELLED", normalized.Cassie.Message);
+        Assert.Equal("{target_name} 支援已被跳过", normalized.Cassie.Subtitles);
+    }
+
+    [Fact]
+    public void Invalid_node_reports_its_complete_configuration_path()
+    {
+        NotificationsConfig source = new();
+        source.SkipTriggered.Cassie.GlitchScale = 2f;
+        List<string> invalidPaths = new();
+
+        NotificationsConfig normalized = NotificationConfigNormalizer.Normalize(
+            source,
+            invalidPaths.Add);
+
+        Assert.Equal(new[] { "notifications.skip_triggered" }, invalidPaths);
+        Assert.Equal(0f, normalized.SkipTriggered.Cassie.GlitchScale);
+    }
+
+    [Fact]
+    public void Diagnostic_callback_failure_does_not_prevent_default_fallback()
+    {
+        NotificationNodeConfig node = NotificationNodeConfig.CreateDisableAppliedDefault();
+        node.Broadcast.Duration = 0;
+
+        NotificationNodeConfig normalized = NotificationConfigNormalizer.NormalizeNode(
+            "notifications.disable_applied",
+            node,
+            NotificationNodeConfig.CreateDisableAppliedDefault(),
+            _ => throw new InvalidOperationException("logger unavailable"));
+
+        Assert.Equal(NotificationMode.Both, normalized.Mode);
+        Assert.Equal((ushort)8, normalized.Broadcast.Duration);
+    }
+
+    [Fact]
     public void Null_node_restores_a_clone_of_the_default_node()
     {
         NotificationNodeConfig defaults = NotificationNodeConfig.CreateSkipArmedDefault();
