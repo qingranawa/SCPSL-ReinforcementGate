@@ -60,9 +60,19 @@ public sealed class PublicApiTests : IDisposable
     {
         ReinforcementStatesApi.Register(_service);
         ReinforcementStateChangedEventArgs? stateArgs = null;
+        object? stateSender = null;
         int roundResets = 0;
-        ReinforcementStatesApi.StateChanged += (_, args) => stateArgs = args;
-        ReinforcementStatesApi.RoundStateReset += (_, _) => roundResets++;
+        object? roundSender = null;
+        ReinforcementStatesApi.StateChanged += (sender, args) =>
+        {
+            stateSender = sender;
+            stateArgs = args;
+        };
+        ReinforcementStatesApi.RoundStateReset += (sender, _) =>
+        {
+            roundSender = sender;
+            roundResets++;
+        };
 
         _service.SetEnabled(ReinforcementTarget.Ntf, false, "Admin");
         _service.ResetForRound();
@@ -70,6 +80,10 @@ public sealed class PublicApiTests : IDisposable
         Assert.NotNull(stateArgs);
         Assert.Equal("round-start", stateArgs!.Transition.Source);
         Assert.Equal(1, roundResets);
+        Assert.Null(stateSender);
+        Assert.Null(roundSender);
+        Assert.NotSame(_service, stateSender);
+        Assert.NotSame(_service, roundSender);
     }
 
     [Fact]

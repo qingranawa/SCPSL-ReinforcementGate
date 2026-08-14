@@ -118,7 +118,8 @@ public static class ReinforcementStatesApi
         {
             try
             {
-                handler(sender, args);
+                // Do not expose the internal state provider/controller through the public sender.
+                handler(null, args);
             }
             catch
             {
@@ -137,7 +138,8 @@ public static class ReinforcementStatesApi
         {
             try
             {
-                handler(sender, args);
+                // Do not expose the internal state provider/controller through the public sender.
+                handler(null, args);
             }
             catch
             {
