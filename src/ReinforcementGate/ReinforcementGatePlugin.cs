@@ -14,6 +14,7 @@ namespace ReinforcementGate;
 /// <summary>Composes and owns the ReinforcementGate LabAPI plugin lifecycle.</summary>
 public sealed class ReinforcementGatePlugin : Plugin<ReinforcementGateConfig>
 {
+    private readonly Action<string> _invalidConfigWarning;
     private INotificationLogger? _notificationLogger;
     private IInterceptionLogger? _interceptionLogger;
     private INotificationTransport? _notificationTransport;
@@ -22,6 +23,18 @@ public sealed class ReinforcementGatePlugin : Plugin<ReinforcementGateConfig>
     private IReinforcementController? _controller;
     private WaveInterceptionService? _interceptionService;
     private ReinforcementEventsHandler? _eventsHandler;
+
+    /// <summary>Initializes the plugin with LabAPI configuration diagnostics.</summary>
+    public ReinforcementGatePlugin()
+        : this(SafeWarnInvalidConfigPath)
+    {
+    }
+
+    internal ReinforcementGatePlugin(Action<string> invalidConfigWarning)
+    {
+        _invalidConfigWarning = invalidConfigWarning ??
+            throw new ArgumentNullException(nameof(invalidConfigWarning));
+    }
 
     /// <inheritdoc />
     public override string Name => "ReinforcementGate";
@@ -121,7 +134,22 @@ public sealed class ReinforcementGatePlugin : Plugin<ReinforcementGateConfig>
     private void NormalizeConfig()
     {
         Config ??= new ReinforcementGateConfig();
-        Config.Notifications = NotificationConfigNormalizer.Normalize(Config.Notifications);
+        Config.Notifications = NotificationConfigNormalizer.Normalize(
+            Config.Notifications,
+            _invalidConfigWarning);
+    }
+
+    private static void SafeWarnInvalidConfigPath(string configurationPath)
+    {
+        try
+        {
+            LabLogger.Warn(
+                $"[ReinforcementGate] Invalid configuration node '{configurationPath}'; restored its default value.");
+        }
+        catch
+        {
+            // Configuration fallback must survive an unavailable logger.
+        }
     }
 
     private sealed class LabApiInterceptionLogger : IInterceptionLogger

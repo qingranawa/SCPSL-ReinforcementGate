@@ -188,7 +188,7 @@ Broadcast、Cassie 语音和字幕支持以下模板占位符：
 | `{target_name}` | `全部支援`、`九尾狐大支援`、`九尾狐小支援`、`混沌大支援` 或 `混沌小支援`。 |
 | `{admin}` | RA 管理员名称，或控制 API 传入的 `source`。 |
 | `{action}` | `enable`、`disable` 或 `skip`。 |
-| `{reason}` | `global-disabled`、`target-disabled` 或 `skip`。 |
+| `{reason}` | enable 通知中为空字符串；disable 或实际拦截通知中为 `global-disabled`、`target-disabled` 或 `skip`。 |
 
 ## Read-only States API
 
@@ -279,8 +279,8 @@ dotnet test tests/ReinforcementGate.Tests/ReinforcementGate.Tests.csproj --confi
 
 ## Known limits
 
-- 插件不会移除、处决、改角色、改阵营或以其他方式处理已经刷新的玩家。
-- 插件不会修改支援计时器、影响力（influence）、支援令牌（tokens）、波次人数或支援载具。
+- 插件不会移除、处决、改角色、改阵营或以其他方式处理已经刷新的玩家（players）。
+- 插件不会修改支援计时器（timers）、影响力（influence）、支援令牌（tokens）、波次人数（wave population）或支援载具（vehicles）。
 - 插件不主动生成一波支援，只能允许或阻止 LabAPI 提供的未来波事件。
 - 运行时开关不持久化，回合开始后全部恢复默认。
 - 未知或未来新增的支援波封装类型会被放行并记录限频警告，不会被猜测归类。

@@ -83,6 +83,44 @@ public sealed class PluginLifecycleContractTests
         Assert.False(ReinforcementStatesApi.IsAvailable);
     }
 
+    [Fact]
+    public void Config_normalization_reports_the_full_invalid_path_and_isolates_logger_failure()
+    {
+        List<string> warnings = new();
+        ReinforcementGatePlugin plugin = new(warnings.Add);
+        plugin.Config.Notifications.SkipTriggered.Cassie.GlitchScale = 2f;
+
+        try
+        {
+            plugin.Enable();
+            Assert.Equal(new[] { "notifications.skip_triggered" }, warnings);
+            Assert.Equal(0f, plugin.Config.Notifications.SkipTriggered.Cassie.GlitchScale);
+        }
+        finally
+        {
+            plugin.Disable();
+        }
+
+        ReinforcementGatePlugin failingLoggerPlugin = new(_ =>
+            throw new InvalidOperationException("logger unavailable"));
+        failingLoggerPlugin.Config.Notifications.DisableApplied.Broadcast.Duration = 0;
+
+        Exception? exception = null;
+        try
+        {
+            exception = Record.Exception(failingLoggerPlugin.Enable);
+        }
+        finally
+        {
+            failingLoggerPlugin.Disable();
+        }
+
+        Assert.Null(exception);
+        Assert.Equal(
+            (ushort)8,
+            failingLoggerPlugin.Config.Notifications.DisableApplied.Broadcast.Duration);
+    }
+
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
