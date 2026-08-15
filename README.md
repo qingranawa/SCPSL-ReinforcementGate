@@ -1,12 +1,39 @@
 # ReinforcementGate
 
-[![LabAPI](https://img.shields.io/badge/LabAPI-1.1.7-5865F2)](https://github.com/northwood-studios/LabAPI) [![SCP:SL](https://img.shields.io/badge/SCP%3ASL-14.2.7-2f3136)](https://store.steampowered.com/app/700330/SCP_Secret_Laboratory/) [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![LabAPI](https://img.shields.io/badge/LabAPI-1.1.7-5865F2)](https://github.com/northwood-studios/LabAPI) [![SCP:SL](https://img.shields.io/badge/SCP%3ASL-14.2.7-2f3136)](https://store.steampowered.com/app/700330/SCP_Secret_Laboratory/) [![.NET%20Framework](https://img.shields.io/badge/.NET%20Framework-4.8-512BD4)](https://dotnet.microsoft.com/download/dotnet-framework) [![Release](https://img.shields.io/github/v/release/qingranawa/SCPSL-ReinforcementGate?display_name=tag&sort=semver)](https://github.com/qingranawa/SCPSL-ReinforcementGate/releases/latest) [![CI](https://github.com/qingranawa/SCPSL-ReinforcementGate/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/qingranawa/SCPSL-ReinforcementGate/actions/workflows/ci.yml) [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-ReinforcementGate 是一个基于 LabAPI 的 SCP: Secret Laboratory 服务器插件。它可以控制九尾狐和混沌分裂者的大支援、小支援的刷新，支持全局禁用和跳过下一波支援。
+基于 LabAPI 的 SCP:SL 支援波精细控制：四类支援独立控制、`skip`、Remote Admin 和公共 API。
 
 > 主 README 使用中文。其他语言： [English](README.en.md) · [Polski](README.pl.md) · [Deutsch](README.de.md)
 
-## 功能
+## 核心能力
+
+- 独立控制九尾狐和混沌分裂者的大支援、小支援四类波次。
+- 支持分类或全局的单次 `skip`，不改写持续禁用状态。
+- 通过 Remote Admin、`RespawnEvents` 权限和可配置的 BC/CASSIE 通知管理支援波。
+- 为其他 LabAPI 插件提供同步、强类型的只读快照、控制 API 和公共事件。
+
+## Quick Start
+
+1. 从 [最新 Release](https://github.com/qingranawa/SCPSL-ReinforcementGate/releases/latest) 下载 `ReinforcementGate.dll`。
+2. 将 DLL 放入 `%AppData%\SCP Secret Laboratory\LabAPI\plugins\global\ReinforcementGate.dll`。
+3. 重启服务器。
+4. 在 Remote Admin 执行 `rf status`；能看到状态快照就说明插件已加载。
+
+## 演示
+
+<video controls preload="metadata" width="720">
+  <source src="assets/reinforcement-gate-demo.mp4" type="video/mp4">
+  您的浏览器不支持 HTML5 视频，请<a href="assets/reinforcement-gate-demo.mp4">下载演示视频</a>。
+</video>
+
+[下载演示视频](assets/reinforcement-gate-demo.mp4)
+
+建议演示路径：`rf status` → `rf disable ntf` → `rf skip ci` → 触发对应支援波并确认实际拦截通知。
+
+## 服务器管理员
+
+### 功能
 
 - 识别四类 LabAPI 支援波：`MtfWave`（`ntf`）、`MiniMtfWave`（`ntf-mini`）、`ChaosWave`（`ci`）和 `MiniChaosWave`（`ci-mini`）。
 - 分类开关与全局开关彼此独立，解除全局禁用不会影响已有分类状态。
@@ -15,7 +42,7 @@ ReinforcementGate 是一个基于 LabAPI 的 SCP: Secret Laboratory 服务器插
 - 提供同步、强类型、只读快照状态 API、控制 API 和公共事件。
 - 配置重载只替换通知配置，不改变当前回合的运行时状态。
 
-## 兼容性
+### 兼容性
 
 - SCP: Secret Laboratory Dedicated Server。
 - **LabAPI 1.1.7**；插件不依赖 EXILED 或 LabExtended。
@@ -24,7 +51,7 @@ ReinforcementGate 是一个基于 LabAPI 的 SCP: Secret Laboratory 服务器插
 
 服务器、LabAPI 或游戏程序集版本发生变化后，应重新构建并在测试服验证事件签名和四类支援封装类型。
 
-## 安装
+### 安装
 
 1. 确认服务器安装了兼容的 LabAPI 1.1.7。
 2. 从 [Releases](https://github.com/qingranawa/SCPSL-ReinforcementGate/releases) 下载 `ReinforcementGate.dll`。
@@ -43,7 +70,7 @@ ReinforcementGate 是一个基于 LabAPI 的 SCP: Secret Laboratory 服务器插
 
    `<port>` 是服务器实际端口对应的配置目录名。
 
-## Remote Admin 命令
+### Remote Admin 命令
 
 根命令为 `reinforcement`，别名为 `rf`；以下所有形式都可将 `reinforcement` 换成 `rf`。
 
@@ -67,7 +94,7 @@ ReinforcementGate 是一个基于 LabAPI 的 SCP: Secret Laboratory 服务器插
 
 示例：`rf disable ntf-mini`、`rf skip ci`、`rf enable all`。
 
-## 状态与 `skip` 优先级
+### 状态与 `skip` 优先级
 
 每次已识别支援波到来时，按以下顺序决定是否放行：
 
@@ -81,14 +108,14 @@ ReinforcementGate 是一个基于 LabAPI 的 SCP: Secret Laboratory 服务器插
 
 全局开关不改写四个分类的分类开关。例如先执行 `disable ntf`，再执行 `disable all` 和 `enable all`，`ntf` 仍保持分类禁用。每回合开始会恢复全部放行并清空所有 `skip`；运行时状态不会写入配置，也不会跨回合保存。
 
-## 权限
+### 权限
 
 - `status` 对所有 Remote Admin 调用者开放，不检查 RA 权限节点，也不要求 `RespawnEvents`。
 - `enable`、`disable`、`skip` 和 `reset` 会改变状态，要求调用者拥有 `PlayerPermissions.RespawnEvents`。
 - 无权限或参数无效时不改变状态，也不发送通知。
 - 跨插件只读 API 不使用 RA 权限；控制 API 使用调用方传入的 `source` 记录来源，也不执行 RA 权限检查。调用方插件自行决定自己的授权策略。
 
-## 配置
+### 配置
 
 完整默认配置如下。默认不发送 BC 或 CASSIE；服主可以填写自己的模板，并把对应节点的 `mode` 改为 `Broadcast`、`Cassie` 或 `Both`。
 
@@ -180,7 +207,7 @@ notifications:
 
 无效节点会记录完整配置路径，并将整个节点恢复为默认值。未知占位符会保留原文本并记录警告；模板解析或消息发送失败不会改变已经作出的放行/拦截决定。LabAPI 重载配置时，只原子替换通知树，不清空运行时状态。
 
-## 模板占位符
+### 模板占位符
 
 BC、CASSIE 语音和字幕支持以下占位符：
 
@@ -192,7 +219,11 @@ BC、CASSIE 语音和字幕支持以下占位符：
 | `{action}` | `enable`、`disable` 或 `skip`。 |
 | `{reason}` | `enable` 通知中为空字符串；`disable` 或实际拦截通知中为 `global-disabled`、`target-disabled` 或 `skip`。 |
 
-## 只读状态 API
+## Developer API
+
+第三方 LabAPI 插件可以通过下面的同步、强类型接口读取状态、控制支援波并订阅公共事件。
+
+### 只读状态 API
 
 第三方 LabAPI 插件引用 `ReinforcementGate.dll` 后，可通过 `ReinforcementStatesApi` 查询状态。快照及其中的分类字典/单项状态都是只读对象，不会暴露内部控制器。
 
@@ -213,7 +244,7 @@ if (ReinforcementStatesApi.IsAvailable)
 
 `GetState`/`TryGetState` 只接受四个具体目标，不接受 `All`。插件尚未启用或正在卸载时，先检查 `IsAvailable`；不可用时 `GetSnapshot`/`GetState` 抛出清晰的 `InvalidOperationException`，`TryGetState` 返回 `false`。这些只读查询不需要任何 RA 权限。
 
-## 控制 API
+### 控制 API
 
 控制 API 与 RA 命令使用同一通知感知控制器。调用方必须提供非空白 `source`，用于审计和 `{admin}` 模板值。
 
@@ -239,7 +270,7 @@ StateTransitionResult Reset(string source);
 
 所有公共 API 都是同步 API，必须在游戏服务器主线程调用。API 不负责调度回主线程。只读状态查询不要求 RA 权限；控制调用不读取 RA 权限，而是使用传入的 `source`，因此调用插件负责在调用前完成自己的权限与线程检查。
 
-## 公共事件
+### 公共事件
 
 ```csharp
 ReinforcementStatesApi.StateChanged += (_, args) =>

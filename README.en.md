@@ -1,12 +1,41 @@
 # ReinforcementGate
 
-[![LabAPI](https://img.shields.io/badge/LabAPI-1.1.7-5865F2)](https://github.com/northwood-studios/LabAPI) [![SCP:SL](https://img.shields.io/badge/SCP%3ASL-14.2.7-2f3136)](https://store.steampowered.com/app/700330/SCP_Secret_Laboratory/) [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![LabAPI](https://img.shields.io/badge/LabAPI-1.1.7-5865F2)](https://github.com/northwood-studios/LabAPI) [![SCP:SL](https://img.shields.io/badge/SCP%3ASL-14.2.7-2f3136)](https://store.steampowered.com/app/700330/SCP_Secret_Laboratory/) [![.NET%20Framework](https://img.shields.io/badge/.NET%20Framework-4.8-512BD4)](https://dotnet.microsoft.com/download/dotnet-framework) [![Release](https://img.shields.io/github/v/release/qingranawa/SCPSL-ReinforcementGate?display_name=tag&sort=semver)](https://github.com/qingranawa/SCPSL-ReinforcementGate/releases/latest) [![CI](https://github.com/qingranawa/SCPSL-ReinforcementGate/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/qingranawa/SCPSL-ReinforcementGate/actions/workflows/ci.yml) [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-ReinforcementGate is a LabAPI plugin for SCP: Secret Laboratory servers. It controls NTF and Chaos Insurgency main and mini reinforcement waves, with a global stop and a one-wave skip.
+Fine-grained SCP:SL reinforcement-wave control for LabAPI.
+
+ReinforcementGate independently controls all four NTF and Chaos Insurgency waves, one-wave `skip` actions, Remote Admin permissions and public plugin APIs.
 
 The main README is in Chinese. Other languages: [中文](README.md) · [Polski](README.pl.md) · [Deutsch](README.de.md)
 
-## Features
+## Core capabilities
+
+- Independently control NTF and Chaos main and mini reinforcement waves.
+- Arm target or global one-wave `skip` actions without rewriting persistent stops.
+- Manage waves through Remote Admin, `RespawnEvents` permissions and configurable Broadcast/CASSIE notifications.
+- Integrate other LabAPI plugins through synchronous typed snapshots, control methods and public events.
+
+## Quick Start
+
+1. Download `ReinforcementGate.dll` from the [latest Release](https://github.com/qingranawa/SCPSL-ReinforcementGate/releases/latest).
+2. Copy it to `%AppData%\SCP Secret Laboratory\LabAPI\plugins\global\ReinforcementGate.dll`.
+3. Restart the server.
+4. Run `rf status` in Remote Admin; the state snapshot confirms that the plugin is loaded.
+
+## Demo
+
+<video controls preload="metadata" width="720">
+  <source src="assets/reinforcement-gate-demo.mp4" type="video/mp4">
+  Your browser does not support HTML5 video; <a href="assets/reinforcement-gate-demo.mp4">download the demo video</a> instead.
+</video>
+
+[Download the demo video](assets/reinforcement-gate-demo.mp4)
+
+Suggested demo path: `rf status` → `rf disable ntf` → `rf skip ci` → trigger the matching reinforcement wave and confirm the interception notification.
+
+## Server Admin
+
+### Features
 
 - Recognizes the four LabAPI reinforcement wrappers: `MtfWave` (`ntf`), `MiniMtfWave` (`ntf-mini`), `ChaosWave` (`ci`) and `MiniChaosWave` (`ci-mini`).
 - Global and per-target switches are independent; clearing the global stop does not change local target states.
@@ -15,7 +44,7 @@ The main README is in Chinese. Other languages: [中文](README.md) · [Polski](
 - Exposes synchronous, strongly typed, read-only snapshots, control APIs and public events.
 - Reloading the configuration replaces only the notification tree and preserves runtime state for the current round.
 
-## Compatibility
+### Compatibility
 
 - SCP: Secret Laboratory Dedicated Server.
 - **LabAPI 1.1.7**; no EXILED or LabExtended dependency.
@@ -24,14 +53,14 @@ The main README is in Chinese. Other languages: [中文](README.md) · [Polski](
 
 When the server, LabAPI or game assemblies change, rebuild and verify the event signatures and four wrapper types on a test server.
 
-## Installation
+### Installation
 
 1. Install a compatible LabAPI 1.1.7 server.
 2. Download `ReinforcementGate.dll` from [Releases](https://github.com/qingranawa/SCPSL-ReinforcementGate/releases).
 3. Copy it to `%AppData%\\SCP Secret Laboratory\\LabAPI\\plugins\\global\\ReinforcementGate.dll` (hosting providers may use an equivalent local AppData directory).
 4. Start or restart the server. LabAPI creates the per-port configuration at `%AppData%\\SCP Secret Laboratory\\LabAPI\\configs\\<port>\\ReinforcementGate\\reinforcement-gate.yml`.
 
-## Remote Admin commands
+### Remote Admin commands
 
 The root command is `reinforcement`, with `rf` as an alias; either name can be used.
 
@@ -47,7 +76,7 @@ Targets: `all` (all recognized waves), `ntf` (NTF main), `ntf-mini` (NTF mini), 
 
 Examples: `rf disable ntf-mini`, `rf skip ci`, `rf enable all`.
 
-## State and `skip` precedence
+### State and `skip` precedence
 
 For every recognized wave, the decision order is:
 
@@ -59,14 +88,14 @@ For every recognized wave, the decision order is:
 
 Persistent stops have priority over `skip`, so no skip is consumed while a persistent stop blocks the wave. If target and global skips coexist, the target skip is consumed first. Global enable/disable does not rewrite the four local target switches. Round start enables all targets and clears all skips; runtime state is not saved across rounds.
 
-## Permissions
+### Permissions
 
 - `status` is open to every Remote Admin caller; it checks neither an RA permission node nor `RespawnEvents`.
 - `enable`, `disable`, `skip` and `reset` change state and require `PlayerPermissions.RespawnEvents`.
 - Invalid or unauthorized requests leave state unchanged and send no notification.
 - Cross-plugin read-only APIs do not use RA permissions. The control API records the caller-supplied `source` and leaves authorization to the calling plugin.
 
-## Configuration and notifications
+### Configuration and notifications
 
 All notification nodes default to `mode: None`; no Broadcast or CASSIE is sent by default. Server owners can write their own templates and set a node to `Broadcast`, `Cassie` or `Both`.
 
@@ -74,11 +103,15 @@ The nodes are `enable_applied`, `disable_applied`, `disabled_wave_blocked`, `ski
 
 Supported fields are `mode`, `broadcast.message`, `broadcast.duration`, `broadcast.clear_previous`, `cassie.message`, `cassie.subtitles`, `cassie.play_background`, `cassie.priority` and `cassie.glitch_scale`. Invalid nodes fall back to defaults and log their full path; unknown placeholders are preserved and logged. Template or send failures do not change the already-made allow/block decision. Configuration reload atomically replaces only the notification tree.
 
-## Template placeholders
+### Template placeholders
 
 Broadcast, CASSIE speech and subtitles support `{target}`, `{target_name}`, `{admin}`, `{action}` and `{reason}`. `{reason}` is empty for `enable`, and is `global-disabled`, `target-disabled` or `skip` for disable/interception notifications.
 
-## Read-only state API
+## Developer API
+
+Other LabAPI plugins can use the following synchronous, strongly typed interfaces to read state, control waves and subscribe to public events.
+
+### Read-only state API
 
 Reference `ReinforcementGate.dll` from another LabAPI plugin and use `ReinforcementStatesApi`. Snapshots and target dictionaries are read-only and do not expose the internal controller.
 
@@ -97,7 +130,7 @@ if (ReinforcementStatesApi.IsAvailable)
 
 Available members include `IsAvailable`, `GetSnapshot()`, `GetState(target)`, `TryGetState(target, out state)`, `StateChanged` and `RoundStateReset`. `GetState` and `TryGetState` accept only concrete targets, not `All`. These queries do not require RA permissions; unavailable services report a clear exception or `false`.
 
-## Control API
+### Control API
 
 The control API uses the same notification-aware controller as the RA commands. A non-blank `source` is required for audit data and the `{admin}` placeholder.
 
@@ -112,7 +145,7 @@ ReinforcementControlApi.ArmSkip(
 
 The complete entry points are `SetEnabled(target, enabled, source)`, `ArmSkip(target, source)`, `ClearSkip(target, source)` and `Reset(source)`. They accept `All` or a concrete target and return a `StateTransitionResult`. Repeating an operation returns `Changed == false` and does not duplicate command notifications. All public APIs are synchronous and must be called on the server main thread; the caller owns authorization and thread checks.
 
-## Public events
+### Public events
 
 - `ReinforcementStatesApi.StateChanged` fires after a state change with an immutable `StateTransitionResult`.
 - `ReinforcementStatesApi.RoundStateReset` fires at every round reset.
