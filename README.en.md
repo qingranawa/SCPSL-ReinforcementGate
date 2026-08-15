@@ -22,17 +22,6 @@ The main README is in Chinese. Other languages: [中文](README.md) · [Polski](
 3. Restart the server.
 4. Run `rf status` in Remote Admin; the state snapshot confirms that the plugin is loaded.
 
-## Demo
-
-<video controls preload="metadata" width="720">
-  <source src="assets/reinforcement-gate-demo.mp4" type="video/mp4">
-  Your browser does not support HTML5 video; <a href="assets/reinforcement-gate-demo.mp4">download the demo video</a> instead.
-</video>
-
-[Download the demo video](assets/reinforcement-gate-demo.mp4)
-
-Suggested demo path: `rf status` → `rf disable ntf` → `rf skip ci` → trigger the matching reinforcement wave and confirm the interception notification.
-
 ## Server Admin
 
 ### Features

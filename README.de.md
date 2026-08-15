@@ -22,17 +22,6 @@ Die Hauptdokumentation ist auf Chinesisch. Weitere Sprachen: [中文](README.md)
 3. Den Server neu starten.
 4. In Remote Admin `rf status` ausführen; der Status-Snapshot bestätigt das Laden des Plugins.
 
-## Demo
-
-<video controls preload="metadata" width="720">
-  <source src="assets/reinforcement-gate-demo.mp4" type="video/mp4">
-  Dein Browser unterstützt kein HTML5-Video; <a href="assets/reinforcement-gate-demo.mp4">Demo-Video herunterladen</a>.
-</video>
-
-[Demo-Video herunterladen](assets/reinforcement-gate-demo.mp4)
-
-Vorgeschlagener Demo-Ablauf: `rf status` → `rf disable ntf` → `rf skip ci` → die passende Verstärkungswelle auslösen und die Abfangbenachrichtigung prüfen.
-
 ## Serveradministration
 
 ### Funktionen

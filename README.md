@@ -20,17 +20,6 @@
 3. 重启服务器。
 4. 在 Remote Admin 执行 `rf status`；能看到状态快照就说明插件已加载。
 
-## 演示
-
-<video controls preload="metadata" width="720">
-  <source src="assets/reinforcement-gate-demo.mp4" type="video/mp4">
-  您的浏览器不支持 HTML5 视频，请<a href="assets/reinforcement-gate-demo.mp4">下载演示视频</a>。
-</video>
-
-[下载演示视频](assets/reinforcement-gate-demo.mp4)
-
-建议演示路径：`rf status` → `rf disable ntf` → `rf skip ci` → 触发对应支援波并确认实际拦截通知。
-
 ## 服务器管理员
 
 ### 功能

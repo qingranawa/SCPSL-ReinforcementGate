@@ -22,17 +22,6 @@ Główny README jest po chińsku. Inne języki: [中文](README.md) · [English]
 3. Uruchom ponownie serwer.
 4. Wykonaj `rf status` w Remote Admin; migawka stanu potwierdza załadowanie wtyczki.
 
-## Demonstracja
-
-<video controls preload="metadata" width="720">
-  <source src="assets/reinforcement-gate-demo.mp4" type="video/mp4">
-  Twoja przeglądarka nie obsługuje wideo HTML5; <a href="assets/reinforcement-gate-demo.mp4">pobierz film demonstracyjny</a>.
-</video>
-
-[Pobierz film demonstracyjny](assets/reinforcement-gate-demo.mp4)
-
-Sugerowana ścieżka demonstracji: `rf status` → `rf disable ntf` → `rf skip ci` → wywołaj odpowiednią falę i potwierdź powiadomienie o blokadzie.
-
 ## Administracja serwera
 
 ### Funkcje
